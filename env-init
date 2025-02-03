@@ -1,0 +1,71 @@
+#!/bin/bash
+
+# Configuration
+# ----
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+readonly SCRIPT_DIR
+
+readonly KAS_CMD="KAS_WORK_DIR=${SCRIPT_DIR}/work ${SCRIPT_DIR}/tools/build/kas-container.4.5"
+readonly KAS_CONF="${SCRIPT_DIR}/conf/kas-qemuarm.yml"
+
+readonly BUILD_DEPLOY_DIR="${SCRIPT_DIR}/work/build/tmp/deploy/images/qemuarm"
+readonly BUILD_ARTIFACTS=(
+    'bootenv.img'
+    'u-boot.bin'
+    'core-image-minimal-qemuarm.rootfs.wic.qcow2'
+    'update-bundle-qemuarm.raucb'
+)
+
+readonly TEST_DOCKER_IMAGE="emulated-linux-testing"
+
+TEST_ARTIFACTS_DIR="${TEST_ARTIFACTS_DIR:-${SCRIPT_DIR}/work/artifacts}"
+# ----
+
+# Setup
+# ----
+function testenv_setup() {
+    if ! docker inspect "${TEST_DOCKER_IMAGE}" &>/dev/null; then
+        DOCKER_BUILDKIT=1 docker build -t "${TEST_DOCKER_IMAGE}" "${SCRIPT_DIR}/tools/test"
+    fi
+}
+
+alias buildenv-setup="${KAS_CMD} checkout ${KAS_CONF}"
+# ----
+
+# Build
+# ----
+alias build-shell="${KAS_CMD} shell ${KAS_CONF}"
+alias build-testimage="${KAS_CMD} build ${KAS_CONF}"
+alias build-runqemu="${KAS_CMD} shell ${KAS_CONF} -c 'runqemu wic.qcow2 serial nographic slirp'"
+
+function publish_build_artifacts() {
+    rm -rf "${TEST_ARTIFACTS_DIR:?}"/*
+    mkdir -p "${TEST_ARTIFACTS_DIR}"
+    for artifact in "${BUILD_ARTIFACTS[@]}"; do
+        cp "${BUILD_DEPLOY_DIR}/${artifact}" "${TEST_ARTIFACTS_DIR}" &>/dev/null || true
+    done
+}
+alias build-publish="publish_build_artifacts"
+# ----
+
+# Test
+# ----
+function run_in_testenv() {
+    # Make sure the test environment is up-to-date
+    testenv_setup
+
+    local extra_opts=""
+    if [[ "$1" == "-i" ]]; then
+        extra_opts+="-i"
+        shift
+    fi
+    docker run --rm -t \
+        -v "${SCRIPT_DIR}/test"/:/test/ \
+        -v "${TEST_ARTIFACTS_DIR}"/:/artifacts/ \
+        -w /test ${extra_opts} \
+        ${TEST_DOCKER_IMAGE} "$@"
+}
+
+alias test-shell="run_in_testenv -i /bin/bash"
+alias test-run-pytest="run_in_testenv /usr/local/bin/pytest"
+# ----

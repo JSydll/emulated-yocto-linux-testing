@@ -1,0 +1,21 @@
+header:
+  version: 14
+  includes:
+    - repo: meta-rauc-community
+      file: meta-rauc-qemuarm/kas-qemuarm.yml
+
+
+repos:
+  meta-rauc-community:
+    url: "https://github.com/rauc/meta-rauc-community"
+    branch: master
+    layers:
+      meta-rauc-qemuarm:
+
+  emulated-yocto-linux-testing:
+    layers:
+      src/meta-testing:
+
+local_conf_header:
+  meta-testing: |
+    # Additional, testing related configs will follow...

@@ -1,0 +1,5 @@
+.vscode
+work/*
+!**/.gitkeep
+**/__pycache__
+**/.pytest_cache

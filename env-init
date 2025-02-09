@@ -2,23 +2,24 @@
 
 # Configuration
 # ----
+# Variables to set when sourcing the environment
+BUILD_MACHINE="${BUILD_MACHINE:-qemuarm}"
+TEST_ARTIFACTS_DIR="${TEST_ARTIFACTS_DIR:-${SCRIPT_DIR}/work/artifacts}"
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
-readonly SCRIPT_DIR
 
-readonly KAS_CMD="KAS_WORK_DIR=${SCRIPT_DIR}/work ${SCRIPT_DIR}/tools/build/kas-container.4.5"
-readonly KAS_CONF="${SCRIPT_DIR}/conf/kas-qemuarm.yml"
+KAS_CMD="KAS_WORK_DIR=${SCRIPT_DIR}/work ${SCRIPT_DIR}/tools/build/kas-container.4.5"
+KAS_CONF="${SCRIPT_DIR}/conf/kas-${BUILD_MACHINE}.yml"
 
-readonly BUILD_DEPLOY_DIR="${SCRIPT_DIR}/work/build/tmp/deploy/images/qemuarm"
-readonly BUILD_ARTIFACTS=(
+BUILD_DEPLOY_DIR="${SCRIPT_DIR}/work/build/tmp/deploy/images/${BUILD_MACHINE}"
+
+TEST_BUILD_ARTIFACTS=(
     'bootenv.img'
     'u-boot.bin'
     'core-image-minimal-qemuarm.rootfs.wic.qcow2'
     'update-bundle-qemuarm.raucb'
 )
-
-readonly TEST_DOCKER_IMAGE="emulated-linux-testing"
-
-TEST_ARTIFACTS_DIR="${TEST_ARTIFACTS_DIR:-${SCRIPT_DIR}/work/artifacts}"
+TEST_DOCKER_IMAGE="emulated-linux-testing"
 # ----
 
 # Setup
@@ -35,17 +36,17 @@ alias buildenv-setup="${KAS_CMD} checkout ${KAS_CONF}"
 # Build
 # ----
 alias build-shell="${KAS_CMD} shell ${KAS_CONF}"
-alias build-testimage="${KAS_CMD} build ${KAS_CONF}"
+alias build-image="${KAS_CMD} build ${KAS_CONF}"
 alias build-runqemu="${KAS_CMD} shell ${KAS_CONF} -c 'runqemu wic.qcow2 serial nographic slirp'"
 
-function publish_build_artifacts() {
+function publish_test_artifacts() {
     rm -rf "${TEST_ARTIFACTS_DIR:?}"/*
     mkdir -p "${TEST_ARTIFACTS_DIR}"
-    for artifact in "${BUILD_ARTIFACTS[@]}"; do
+    for artifact in "${TEST_BUILD_ARTIFACTS[@]}"; do
         cp "${BUILD_DEPLOY_DIR}/${artifact}" "${TEST_ARTIFACTS_DIR}" &>/dev/null || true
     done
 }
-alias build-publish="publish_build_artifacts"
+alias build-publish="publish_test_artifacts"
 # ----
 
 # Test

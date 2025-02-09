@@ -1,0 +1,51 @@
+header:
+  version: 14
+
+machine: raspberrypi4
+distro: poky
+
+defaults:
+  repos:
+    branch: scarthgap
+
+repos:
+  meta-rauc-community:
+    url: "https://github.com/rauc/meta-rauc-community"
+    layers:
+      meta-rauc-raspberrypi:
+  meta-rauc:
+    url: "https://github.com/rauc/meta-rauc.git"
+    path: layers/meta-rauc
+  meta-raspberrypi:
+    url: "https://github.com/agherzan/meta-raspberrypi"
+    path: layers/meta-raspberrypi
+  poky:
+    url: "https://git.yoctoproject.org/git/poky"
+    path: layers/poky
+    layers:
+      meta:
+      meta-poky:
+
+target:
+  - core-image-minimal
+  - update-bundle
+
+local_conf_header:
+  meta-custom: |
+    # MACHINE
+    # ---
+    ENABLE_UART = "1"
+    RPI_USE_U_BOOT = "1"
+
+    # DISTRO
+    # ---
+    DISTRO_FEATURES:append = " rauc"
+    INIT_MANAGER = "systemd"
+
+    # IMAGE
+    # ---
+    IMAGE_INSTALL:append = " rauc"
+    IMAGE_FSTYPES:append = " ext4"
+    WKS_FILE = "sdimage-dual-raspberrypi.wks.in"
+    EXTRA_IMAGE_FEATURES += "debug-tweaks"
+    EXTRA_IMAGE_FEATURES += "ssh-server-openssh"

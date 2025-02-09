@@ -1,0 +1,1 @@
+The `network_strategy.py` is a direct copy from labgrid's [example directory](https://github.com/labgrid-project/labgrid/tree/master/examples/qemu-networking).

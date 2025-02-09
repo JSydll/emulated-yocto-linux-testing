@@ -29,7 +29,7 @@ class Status(enum.Enum):
 
 @target_factory.reg_driver
 @attr.s(eq=False)
-class QEMUNetworkStrategy(Strategy):
+class QEMUSetupStrategy(Strategy):
     bindings = {
         "qemu": "QEMUDriver",
         "shell": "ShellDriver",

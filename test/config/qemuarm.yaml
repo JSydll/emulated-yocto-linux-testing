@@ -1,11 +1,16 @@
 targets:
   main:
+    features:
+      - update
+
     resources:
       - NetworkService:
           # The actual address will be filled in by the strategy
-          address: ''
+          address: ""
           port: 22
           username: root
+      - UpdateBundles:
+          current: /artifacts/update-bundle-qemuarm.raucb
 
     drivers:
       - QEMUDriver:
@@ -17,14 +22,14 @@ targets:
           nic: user,model=virtio-net-pci
           bios: uboot_bin
           disk: rootfs_img
-          extra_args: ' -drive if=pflash,format=raw,index=1,readonly=off,file=/artifacts/bootenv.img'
+          extra_args: " -drive if=pflash,format=raw,index=1,readonly=off,file=/artifacts/bootenv.img"
       - ShellDriver:
-          login_prompt: 'qemuarm login: '
-          username: 'root'
+          login_prompt: "qemuarm login: "
+          username: "root"
           prompt: 'root@\w+:[^ ]+ '
           login_timeout: 200
       - SSHDriver: {}
-      - QEMUNetworkStrategy: {}
+      - QEMUSetupStrategy: {}
 
 tools:
   qemu_arm: /usr/bin/qemu-system-arm
@@ -34,4 +39,5 @@ images:
   uboot_bin: /artifacts/u-boot.bin
 
 imports:
-  - qemu_network_strategy.py
+  - environment.qemu.setup_strategy
+  - environment.update

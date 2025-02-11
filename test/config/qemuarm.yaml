@@ -1,16 +1,14 @@
 targets:
   main:
-    features:
-      - update
-
-    resources:
+    resources: &common-resources
       - NetworkService:
-          # The actual address will be filled in by the strategy
           address: ""
           port: 22
           username: root
       - UpdateBundles:
-          current: /artifacts/update-bundle-qemuarm.raucb
+          latest: /artifacts/latest.update-bundle-qemuarm.raucb
+          lts: /artifacts/lts.update-bundle-qemuarm.raucb
+          manufacturing: /artifacts/manufacturing.update-bundle-qemuarm.raucb
 
     drivers:
       - QEMUDriver:
@@ -18,12 +16,11 @@ targets:
           machine: virt
           cpu: cortex-a15
           memory: 3G
-          display: none
           nic: user,model=virtio-net-pci
-          bios: uboot_bin
-          disk: rootfs_img
-          extra_args: " -drive if=pflash,format=raw,index=1,readonly=off,file=/artifacts/bootenv.img"
-      - ShellDriver:
+          bios: uboot_latest
+          disk: rootfs_latest
+          extra_args: " -drive if=pflash,format=raw,index=1,readonly=off,file=/artifacts/latest.bootenv.img"
+      - ShellDriver: &shell-config
           login_prompt: "qemuarm login: "
           username: "root"
           prompt: 'root@\w+:[^ ]+ '
@@ -31,12 +28,48 @@ targets:
       - SSHDriver: {}
       - QEMUSetupStrategy: {}
 
+  lts:
+    resources: *common-resources
+    drivers:
+      - QEMUDriver:
+          qemu_bin: qemu_arm
+          machine: virt
+          cpu: cortex-a15
+          memory: 3G
+          nic: user,model=virtio-net-pci
+          bios: uboot_lts
+          disk: rootfs_lts
+          extra_args: " -drive if=pflash,format=raw,index=1,readonly=off,file=/artifacts/lts.bootenv.img"
+      - ShellDriver: *shell-config
+      - SSHDriver: {}
+      - QEMUSetupStrategy: {}
+
+  manufacturing:
+    resources: *common-resources
+    drivers:
+      - QEMUDriver:
+          qemu_bin: qemu_arm
+          machine: virt
+          cpu: cortex-a15
+          memory: 3G
+          nic: user,model=virtio-net-pci
+          bios: uboot_manufacturing
+          disk: rootfs_manufacturing
+          extra_args: " -drive if=pflash,format=raw,index=1,readonly=off,file=/artifacts/manufacturing.bootenv.img"
+      - ShellDriver: *shell-config
+      - SSHDriver: {}
+      - QEMUSetupStrategy: {}
+
 tools:
   qemu_arm: /usr/bin/qemu-system-arm
 
 images:
-  rootfs_img: /artifacts/core-image-minimal-qemuarm.rootfs.wic.qcow2
-  uboot_bin: /artifacts/u-boot.bin
+  uboot_latest: /artifacts/latest.u-boot.bin
+  rootfs_latest: /artifacts/latest.core-image-minimal-qemuarm.rootfs.wic.qcow2
+  uboot_lts: /artifacts/lts.u-boot.bin
+  rootfs_lts: /artifacts/lts.core-image-minimal-qemuarm.rootfs.wic.qcow2
+  uboot_manufacturing: /artifacts/manufacturing.u-boot.bin
+  rootfs_manufacturing: /artifacts/manufacturing.core-image-minimal-qemuarm.rootfs.wic.qcow2
 
 imports:
   - environment.qemu.setup_strategy

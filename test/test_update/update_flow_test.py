@@ -6,16 +6,39 @@ import pytest
 
 import environment.update as update
 
-pytestmark = [pytest.mark.update, pytest.mark.lg_feature('update')]
+from environment.software_version import SoftwareVersion
+
+pytestmark = pytest.mark.update
+
+@pytest.mark.on_manufacturing
+@pytest.mark.parametrize('version_to_install',
+        [SoftwareVersion.lts, SoftwareVersion.latest]
+    )
+def test_update_from_manufacturing_succeeds(update_manufacturing, version_to_install):
+    """
+    Test that the happy path update from manufacturing to the specified version succeeds.
+    """
+    update_manufacturing.execute_all_steps(version_to_install)
+
+
+@pytest.mark.on_lts
+@pytest.mark.parametrize('version_to_install',
+        [SoftwareVersion.lts, SoftwareVersion.latest]
+    )
+def test_update_from_lts_succeeds(update_lts, version_to_install):
+    """
+    Test that the happy path update from LTS to the specified version succeeds.
+    """
+    update_lts.execute_all_steps(version_to_install)
 
 
 @pytest.mark.smoketest
-def test_successful_update_installation(update_flow):
+@pytest.mark.on_latest
+@pytest.mark.parametrize('version_to_install',
+        [SoftwareVersion.latest]
+    )
+def test_update_from_latest_succeeds(update_latest, version_to_install):
     """
-    Test the successful, undisturbed update flow from current to current
-    software version.
+    Test that the happy path update from latest to the specified version succeeds.
     """
-    update_flow.deploy_bundle(update.BundleVersion.current)
-    update_flow.install_bundle()
-    update_flow.activate_update()
-    update_flow.verify_update()
+    update_latest.execute_all_steps(version_to_install)

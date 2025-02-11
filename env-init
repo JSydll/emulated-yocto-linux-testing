@@ -1,4 +1,5 @@
 #!/bin/bash
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
 # Configuration
 # ----
@@ -6,18 +7,19 @@
 BUILD_MACHINE="${BUILD_MACHINE:-qemuarm}"
 TEST_ARTIFACTS_DIR="${TEST_ARTIFACTS_DIR:-${SCRIPT_DIR}/work/artifacts}"
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
-
 KAS_CMD="KAS_WORK_DIR=${SCRIPT_DIR}/work ${SCRIPT_DIR}/tools/build/kas-container.4.5"
 KAS_CONF="${SCRIPT_DIR}/conf/kas-${BUILD_MACHINE}.yml"
 
-BUILD_DEPLOY_DIR="${SCRIPT_DIR}/work/build/tmp/deploy/images/${BUILD_MACHINE}"
-
+TEST_VERSIONS=(
+    'manufacturing'
+    'lts'
+    'latest'
+)
 TEST_BUILD_ARTIFACTS=(
     'bootenv.img'
     'u-boot.bin'
     'core-image-minimal-qemuarm.rootfs.wic.qcow2'
-    'update-bundle-qemuarm.raucb'
+    "update-bundle-${BUILD_MACHINE}.raucb"
 )
 TEST_DOCKER_IMAGE="emulated-linux-testing"
 # ----
@@ -42,8 +44,11 @@ alias build-runqemu="${KAS_CMD} shell ${KAS_CONF} -c 'runqemu wic.qcow2 serial n
 function publish_test_artifacts() {
     rm -rf "${TEST_ARTIFACTS_DIR:?}"/*
     mkdir -p "${TEST_ARTIFACTS_DIR}"
-    for artifact in "${TEST_BUILD_ARTIFACTS[@]}"; do
-        cp "${BUILD_DEPLOY_DIR}/${artifact}" "${TEST_ARTIFACTS_DIR}" &>/dev/null || true
+    for version in "${TEST_VERSIONS[@]}"; do
+        for artifact in "${TEST_BUILD_ARTIFACTS[@]}"; do
+            path="${SCRIPT_DIR}/work/build/tmp-${version}/deploy/images/${BUILD_MACHINE}/${artifact}"
+            cp "${path}" "${TEST_ARTIFACTS_DIR}/${version}.${artifact}" &>/dev/null || true
+        done
     done
 }
 alias build-publish="publish_test_artifacts"

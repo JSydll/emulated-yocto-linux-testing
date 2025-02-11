@@ -3,12 +3,13 @@
 # -----------------------------------
 
 import attr
-import enum
 import json
 
 from dataclasses import dataclass
 from labgrid.factory import target_factory
 from labgrid.resource import Resource
+
+import environment.software_version as versions
 
 
 _UPDATE_INSTALLATION_TIMEOUT = 300
@@ -16,15 +17,20 @@ _UPDATE_INSTALLATION_TIMEOUT = 300
 @target_factory.reg_resource
 @attr.s(eq=False)
 class UpdateBundles(Resource):
-    current = attr.ib()
-
-
-class BundleVersion(enum.Enum):
-    current = 0
+    latest = attr.ib()
+    lts = attr.ib()
+    manufacturing = attr.ib()
 
 
 @dataclass
 class SlotState:
+    """
+    Represents the state of a slot in the system.
+
+    Attributes:
+        good (bool): Indicates whether the slot is in a good state.
+        booted (bool): Indicates whether the slot has been booted.
+    """
     good: bool
     booted: bool
 
@@ -45,7 +51,7 @@ class UpdateFlow:
     def _update_slot_states(self):
         self.target.activate(self.shell)
 
-        captured_output, _, _ = self.shell.run("rauc status --output-format=json")
+        captured_output, _, _ = self.shell.run('rauc status --output-format=json')
         status = json.loads(captured_output[0])
         slots = status['slots']
         
@@ -56,12 +62,12 @@ class UpdateFlow:
                 booted = slot_info['state'] == 'booted'
                 self._slot_states[slot_info['bootname']] = SlotState(good=good, booted=booted)
         
-    def deploy_bundle(self, version: BundleVersion):
+    def deploy_bundle(self, version: versions.SoftwareVersion):
         """
         Deploys the specified update bundle version to the target device.
 
         Args:
-            version: The version of the bundle to deploy. Currently, only BundleVersion.current is supported.
+            version: The version of the bundle to deploy.
 
         Raises:
             NotImplementedError: If the specified version is not supported.
@@ -69,12 +75,24 @@ class UpdateFlow:
         """
         bundles = self.target.get_resource(UpdateBundles)
 
-        if version == BundleVersion.current:
-            src_path = bundles.current
+        if version == versions.SoftwareVersion.lts:
+            src_path = bundles.lts
+        elif version == versions.SoftwareVersion.latest:
+            src_path = bundles.latest
+        elif version == versions.SoftwareVersion.manufacturing:
+            # Note: This is usually only used to reset targets to the manufacturing state.
+            src_path = bundles.manufacturing
         else:
             raise NotImplementedError(f"Version {version} not supported yet.")
 
         self.ssh.put(src_path, '/tmp/update-bundle.raucb')
+
+    def enable_force_install(self):
+        """Enable the force-install flag for the ongoing update (once).
+
+        This is only meant for testing purposes, given downgrades are usually forbidden.
+        """
+        raise NotImplementedError('Forced installation is not implemented yet.')
 
     def install_bundle(self):
         """
@@ -84,7 +102,7 @@ class UpdateFlow:
             Any exceptions raised by the shell instance.
         """
         self.target.activate(self.shell)
-        self.shell.run("rauc install /tmp/update-bundle.raucb", timeout=_UPDATE_INSTALLATION_TIMEOUT)
+        self.shell.run('rauc install /tmp/update-bundle.raucb', timeout=_UPDATE_INSTALLATION_TIMEOUT)
 
     def activate_update(self):
         """
@@ -94,8 +112,10 @@ class UpdateFlow:
             Any exceptions raised by the shell instance.
         """
         self.target.activate(self.shell)
-        self.shell.run("reboot")
+        self.shell.run('reboot')
+        # Make sure the drivers do not assume a false target state.
         self.target.deactivate(self.shell)
+        self.target.deactivate(self.ssh)
 
     def verify_update(self):
         """
@@ -115,4 +135,19 @@ class UpdateFlow:
                     f"After update from slot {slot} [{self._slot_states.get(slot)}]: "
                     f"Slot {expected_slot} is not in the expected state after the update [{state}]."
                 )
+
+    def execute_all_steps(self, version: versions.SoftwareVersion):
+        """
+        Executes all steps of the update process for the specified version.
+
+        Args:
+            version: The version of the bundle to deploy.
+
+        Raises:
+            Any exceptions raised by the shell instance.
+        """
+        self.deploy_bundle(version)
+        self.install_bundle()
+        self.activate_update()
+        self.verify_update()
         

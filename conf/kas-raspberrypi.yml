@@ -9,26 +9,34 @@ defaults:
     branch: scarthgap
 
 repos:
-  meta-rauc-community:
-    url: "https://github.com/rauc/meta-rauc-community"
-    layers:
-      meta-rauc-raspberrypi:
-  meta-rauc:
-    url: "https://github.com/rauc/meta-rauc.git"
-    path: layers/meta-rauc
-  meta-raspberrypi:
-    url: "https://github.com/agherzan/meta-raspberrypi"
-    path: layers/meta-raspberrypi
   poky:
     url: "https://git.yoctoproject.org/git/poky"
     path: layers/poky
     layers:
       meta:
       meta-poky:
+  meta-raspberrypi:
+    url: "https://github.com/agherzan/meta-raspberrypi"
+    path: layers/meta-raspberrypi
+  meta-rauc:
+    url: "https://github.com/rauc/meta-rauc.git"
+    path: layers/meta-rauc
+  meta-rauc-community:
+    url: "https://github.com/rauc/meta-rauc-community"
+    layers:
+      meta-rauc-raspberrypi:
+
+  emulated-yocto-linux-testing:
+    layers:
+      src/meta-testing:
 
 target:
-  - core-image-minimal
-  - update-bundle
+  - mc:manufacturing:core-image-minimal
+  - mc:manufacturing:update-bundle
+  - mc:lts:core-image-minimal
+  - mc:lts:update-bundle
+  - mc:latest:core-image-minimal
+  - mc:latest:update-bundle
 
 local_conf_header:
   meta-custom: |
@@ -49,3 +57,10 @@ local_conf_header:
     WKS_FILE = "sdimage-dual-raspberrypi.wks.in"
     EXTRA_IMAGE_FEATURES += "debug-tweaks"
     EXTRA_IMAGE_FEATURES += "ssh-server-openssh"
+
+    # TESTING
+    # ---
+    # As there are ongoing fixes for multiconfig setups and SPDX exporting,
+    # we disable this feature in the demo.
+    INHERIT:remove = "create-spdx"
+    IMAGE_CLASSES:remove = "create-spdx-image-3.0"

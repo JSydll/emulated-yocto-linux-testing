@@ -19,7 +19,7 @@ targets:
           nic: user,model=virtio-net-pci
           bios: uboot_latest
           disk: rootfs_latest
-          extra_args: " -drive if=pflash,format=raw,index=1,readonly=off,file=/artifacts/latest.bootenv.img"
+          extra_args: " -snapshot -drive if=pflash,format=raw,index=1,readonly=off,file=/artifacts/latest.bootenv.img"
       - ShellDriver: &shell-config
           login_prompt: "qemuarm login: "
           username: "root"
@@ -39,7 +39,7 @@ targets:
           nic: user,model=virtio-net-pci
           bios: uboot_lts
           disk: rootfs_lts
-          extra_args: " -drive if=pflash,format=raw,index=1,readonly=off,file=/artifacts/lts.bootenv.img"
+          extra_args: " -snapshot -drive if=pflash,format=raw,index=1,readonly=off,file=/artifacts/lts.bootenv.img"
       - ShellDriver: *shell-config
       - SSHDriver: {}
       - QEMUSetupStrategy: {}
@@ -55,7 +55,7 @@ targets:
           nic: user,model=virtio-net-pci
           bios: uboot_manufacturing
           disk: rootfs_manufacturing
-          extra_args: " -drive if=pflash,format=raw,index=1,readonly=off,file=/artifacts/manufacturing.bootenv.img"
+          extra_args: " -snapshot -drive if=pflash,format=raw,index=1,readonly=off,file=/artifacts/manufacturing.bootenv.img"
       - ShellDriver: *shell-config
       - SSHDriver: {}
       - QEMUSetupStrategy: {}

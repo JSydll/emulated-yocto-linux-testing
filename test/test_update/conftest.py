@@ -48,11 +48,8 @@ def get_update_flow(env, preset_software_version: versions.SoftwareVersion):
     current_version = versions.get_current_software_version(ssh)
     if current_version != preset_software_version:
         # If the target is not running the desired software version, force install it.
-        update_flow.deploy_bundle(preset_software_version)
         update_flow.enable_force_install()
-        update_flow.install_bundle()
-        update_flow.activate_update()
-        update_flow.verify_update()
+        update_flow.execute_all_steps(preset_software_version)
 
     # Now, the target should be in the desired state
     return update_flow

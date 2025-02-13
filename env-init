@@ -27,12 +27,14 @@ TEST_DOCKER_IMAGE="emulated-linux-testing"
 # Setup
 # ----
 function testenv_setup() {
-    if ! docker inspect "${TEST_DOCKER_IMAGE}" &>/dev/null; then
+    local -r flag="$1"
+    if [[ "${flag}" == "-f" ]] || ! docker inspect "${TEST_DOCKER_IMAGE}" &>/dev/null; then
         DOCKER_BUILDKIT=1 docker build -t "${TEST_DOCKER_IMAGE}" "${SCRIPT_DIR}/tools/test"
     fi
 }
 
 alias buildenv-setup="${KAS_CMD} checkout ${KAS_CONF}"
+alias testenv-rebuild="testenv_setup -f"
 # ----
 
 # Build
@@ -57,7 +59,7 @@ alias build-publish="publish_test_artifacts"
 # Test
 # ----
 function run_in_testenv() {
-    # Make sure the test environment is up-to-date
+    # Make sure the test environment is available
     testenv_setup
 
     local extra_opts=""
@@ -67,7 +69,7 @@ function run_in_testenv() {
     fi
     docker run --rm -t \
         -v "${SCRIPT_DIR}/test"/:/test/ \
-        -v "${TEST_ARTIFACTS_DIR}"/:/artifacts/ \
+        -v "${TEST_ARTIFACTS_DIR}"/:/artifacts:ro \
         -w /test ${extra_opts} \
         ${TEST_DOCKER_IMAGE} "$@"
 }

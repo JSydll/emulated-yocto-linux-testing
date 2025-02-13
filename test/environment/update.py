@@ -85,6 +85,7 @@ class UpdateFlow:
         else:
             raise NotImplementedError(f"Version {version} not supported yet.")
 
+        self.target.activate(self.ssh)
         self.ssh.put(src_path, '/tmp/update-bundle.raucb')
 
     def enable_force_install(self):
@@ -92,7 +93,10 @@ class UpdateFlow:
 
         This is only meant for testing purposes, given downgrades are usually forbidden.
         """
-        raise NotImplementedError('Forced installation is not implemented yet.')
+        # The current implementation does not prevent downgrades - so nothing to do here.
+        # A common approach would be to create a temporary flag file on the device to allow
+        # the downgrade and remove it immediately when it's "read" by the update flow.
+        pass
 
     def install_bundle(self):
         """

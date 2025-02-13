@@ -7,3 +7,6 @@ FROM docker.io/labgrid/client
 RUN echo 'deb http://deb.debian.org/debian bookworm-backports main' > /etc/apt/sources.list.d/bookworm-backports.list && \
     apt update && \
     apt -t bookworm-backports install -y qemu-system-arm
+
+# Plugins for parallelization
+RUN pip install --break-system-packages pytest-xdist[psutil]

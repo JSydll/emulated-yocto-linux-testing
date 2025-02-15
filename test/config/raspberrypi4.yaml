@@ -1,0 +1,31 @@
+targets:
+  main:
+    resources:
+      - NetworkService:
+          # This needs to be replaced with the appropriate address
+          address: 10.42.0.209
+          port: 22
+          username: root
+      - RawSerialPort:
+          port: /dev/ttyUSB0
+          speed: 115200
+      - UpdateBundles:
+          latest: /artifacts/latest.update-bundle-raspberrypi4.raucb
+          lts: /artifacts/lts.update-bundle-raspberrypi4.raucb
+          manufacturing: /artifacts/manufacturing.update-bundle-raspberrypi4.raucb
+
+    drivers:
+      # Note: Power control is currently not supported in this demo
+      - FakePowerDriver: {}
+      - SerialDriver: {}
+      - ShellDriver:
+          login_prompt: "raspberrypi4 login: "
+          username: "root"
+          prompt: 'root@\w+:[^ ]+ '
+          login_timeout: 200
+      - SSHDriver: {}
+      - ShellStrategy: {}
+
+imports:
+  - labgrid.driver.fake
+  - environment.update

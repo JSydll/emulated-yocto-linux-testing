@@ -17,7 +17,11 @@ test-run-pytest --lg-env config/qemuarm.yaml
 ```
 
 If you want to build the `raspberrypi4` reference image, you need to
-`export BUILD_MACHINE=raspberrypi`before sourcing the `env-init`.
+`export TARGET_MACHINE=raspberrypi`before sourcing the `env-init`.
+
+The `labgrid` environment configuration is currently using hardcoded connection
+settings. You need to setup your test host to share its network with the Raspberry Pi
+[e.g. like described here](https://askubuntu.com/questions/996963/connecting-pc-and-raspberrypi-using-lan-cable).
 
 ### Parallel test execution
 
@@ -64,3 +68,78 @@ To be of value, the proposed solution aims to fulfill a set of requirements:
 ### Test setup
 
 - QEMU's `-snapshot` option allows to have ephemeral instances
+
+## Limitations
+
+For the sake of simplicity, this demonstration does not aim to reach full comparability
+in the benchmarks between emulated and in-hardware setups. It simply uses off-the-shelf
+reference integrations, so the findings have several limitations:
+
+- Performance differences:
+  - Raspberry Pi 4: Cortex-A72 4x 1.8GHz, 4 GB LPDDR4-3200 SDRAM (in 32bit mode, though)
+  - QEMUarm: Cortex-A15, 3 GB RAM 
+- Obvious differences between test and "productive" images
+  - Target specific Boot flow
+  - Changes introduced in `meta-testing`
+- Oversimplified HW access setup for Raspberry Pi 4
+
+## Benchmarks
+
+Running the update tests on
+
+**Real hardware (Raspberry Pi 4)**
+
+```bash
+$ time test-run-pytest --durations=8 --lg-env config/raspberrypi4.yaml -m update
+...
+=== slowest 8 durations ===
+96.52s call     test_update/update_flow_test.py::test_update_from_manufacturing_succeeds[SoftwareVersion.latest]
+93.81s call     test_update/update_flow_test.py::test_update_from_lts_succeeds[SoftwareVersion.latest]
+91.91s setup    test_update/update_flow_test.py::test_update_from_lts_succeeds[SoftwareVersion.lts]
+88.03s setup    test_update/update_flow_test.py::test_update_from_manufacturing_succeeds[SoftwareVersion.latest]
+78.18s call     test_update/update_flow_test.py::test_update_from_manufacturing_succeeds[SoftwareVersion.lts]
+76.54s call     test_update/update_flow_test.py::test_update_from_latest_succeeds[SoftwareVersion.latest]
+72.81s call     test_update/update_flow_test.py::test_update_from_lts_succeeds[SoftwareVersion.lts]
+26.42s setup    test_update/update_flow_test.py::test_update_from_manufacturing_succeeds[SoftwareVersion.lts]
+=== 5 passed, 2 deselected in 627.57s (0:10:27) ===
+
+real    10m28,726s
+```
+
+**Emulated, with sequential execution**
+
+```bash
+$ time test-run-pytest --durations=8 --lg-env config/qemuarm.yaml -m update
+
+=== slowest 8 durations ===
+154.11s setup    test_update/update_flow_test.py::test_update_from_manufacturing_succeeds[SoftwareVersion.latest]
+153.63s call     test_update/update_flow_test.py::test_update_from_manufacturing_succeeds[SoftwareVersion.lts]
+145.26s call     test_update/update_flow_test.py::test_update_from_latest_succeeds[SoftwareVersion.latest]
+142.39s call     test_update/update_flow_test.py::test_update_from_lts_succeeds[SoftwareVersion.lts]
+141.36s call     test_update/update_flow_test.py::test_update_from_manufacturing_succeeds[SoftwareVersion.latest]
+141.02s call     test_update/update_flow_test.py::test_update_from_lts_succeeds[SoftwareVersion.latest]
+61.11s setup    test_update/update_flow_test.py::test_update_from_manufacturing_succeeds[SoftwareVersion.lts]
+58.99s setup    test_update/update_flow_test.py::test_update_from_latest_succeeds[SoftwareVersion.latest]
+=== 5 passed, 2 deselected in 1057.99s (0:17:37) ===
+
+real    17m39,257s
+```
+
+**Emulated, with parallel execution**
+
+```bash
+$ time test-run-pytest -n auto --durations=5 --lg-env config/qemuarm.yaml -m update
+
+4 workers [5 items]     
+scheduling tests via LoadScheduling
+
+=== slowest 5 durations ===
+188.41s call     test_update/update_flow_test.py::test_update_from_lts_succeeds[SoftwareVersion.latest]
+187.38s call     test_update/update_flow_test.py::test_update_from_manufacturing_succeeds[SoftwareVersion.latest]
+187.04s call     test_update/update_flow_test.py::test_update_from_lts_succeeds[SoftwareVersion.lts]
+186.63s call     test_update/update_flow_test.py::test_update_from_manufacturing_succeeds[SoftwareVersion.lts]
+152.17s call     test_update/update_flow_test.py::test_update_from_latest_succeeds[SoftwareVersion.latest]
+=== 5 passed in 472.65s (0:07:52) ===
+
+real    7m53,984s
+```

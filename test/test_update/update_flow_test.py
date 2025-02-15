@@ -14,7 +14,7 @@ pytestmark = pytest.mark.update
 @pytest.mark.parametrize('version_to_install',
         [SoftwareVersion.lts, SoftwareVersion.latest]
     )
-def test_update_from_manufacturing_succeeds(update_manufacturing, version_to_install):
+def test_update_from_manufacturing_succeeds(update_manufacturing: update.UpdateFlow, version_to_install: SoftwareVersion) -> None:
     """
     Test that the happy path update from manufacturing to the specified version succeeds.
     """
@@ -25,7 +25,7 @@ def test_update_from_manufacturing_succeeds(update_manufacturing, version_to_ins
 @pytest.mark.parametrize('version_to_install',
         [SoftwareVersion.lts, SoftwareVersion.latest]
     )
-def test_update_from_lts_succeeds(update_lts, version_to_install):
+def test_update_from_lts_succeeds(update_lts: update.UpdateFlow, version_to_install: SoftwareVersion) -> None:
     """
     Test that the happy path update from LTS to the specified version succeeds.
     """
@@ -37,7 +37,7 @@ def test_update_from_lts_succeeds(update_lts, version_to_install):
 @pytest.mark.parametrize('version_to_install',
         [SoftwareVersion.latest]
     )
-def test_update_from_latest_succeeds(update_latest, version_to_install):
+def test_update_from_latest_succeeds(update_latest: update.UpdateFlow, version_to_install: SoftwareVersion) -> None:
     """
     Test that the happy path update from latest to the specified version succeeds.
     """

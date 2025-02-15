@@ -6,6 +6,8 @@ import attr
 import json
 
 from dataclasses import dataclass
+from labgrid import Target
+from labgrid.driver import ShellDriver, SSHDriver
 from labgrid.factory import target_factory
 from labgrid.resource import Resource
 
@@ -17,9 +19,9 @@ _UPDATE_INSTALLATION_TIMEOUT = 300
 @target_factory.reg_resource
 @attr.s(eq=False)
 class UpdateBundles(Resource):
-    latest = attr.ib()
-    lts = attr.ib()
-    manufacturing = attr.ib()
+    latest: str = attr.ib()
+    lts: str = attr.ib()
+    manufacturing: str = attr.ib()
 
 
 @dataclass
@@ -40,7 +42,7 @@ class UpdateFlow:
     Implements the control flow and verification of the update process.
     """
     
-    def __init__(self, target, shell, ssh):
+    def __init__(self, target: Target, shell: ShellDriver, ssh: SSHDriver) -> None:
         self.target = target
         self.shell = shell
         self.ssh = ssh
@@ -48,7 +50,7 @@ class UpdateFlow:
         self._slot_states = {}
         self._update_slot_states()
 
-    def _update_slot_states(self):
+    def _update_slot_states(self) -> None:
         self.target.activate(self.shell)
 
         captured_output, _, _ = self.shell.run('rauc status --output-format=json')
@@ -62,7 +64,7 @@ class UpdateFlow:
                 booted = slot_info['state'] == 'booted'
                 self._slot_states[slot_info['bootname']] = SlotState(good=good, booted=booted)
         
-    def deploy_bundle(self, version: versions.SoftwareVersion):
+    def deploy_bundle(self, version: versions.SoftwareVersion) -> None:
         """
         Deploys the specified update bundle version to the target device.
 
@@ -88,7 +90,7 @@ class UpdateFlow:
         self.target.activate(self.ssh)
         self.ssh.put(src_path, '/tmp/update-bundle.raucb')
 
-    def enable_force_install(self):
+    def enable_force_install(self) -> None:
         """Enable the force-install flag for the ongoing update (once).
 
         This is only meant for testing purposes, given downgrades are usually forbidden.
@@ -98,7 +100,7 @@ class UpdateFlow:
         # the downgrade and remove it immediately when it's "read" by the update flow.
         pass
 
-    def install_bundle(self):
+    def install_bundle(self) -> None:
         """
         Installs the update bundle on the target device.
 
@@ -108,7 +110,7 @@ class UpdateFlow:
         self.target.activate(self.shell)
         self.shell.run('rauc install /tmp/update-bundle.raucb', timeout=_UPDATE_INSTALLATION_TIMEOUT)
 
-    def activate_update(self):
+    def activate_update(self) -> None:
         """
         Activates the update process on the target device.
 
@@ -121,7 +123,7 @@ class UpdateFlow:
         self.target.deactivate(self.shell)
         self.target.deactivate(self.ssh)
 
-    def verify_update(self):
+    def verify_update(self) -> None:
         """
         Verifies the update process by checking the state of the slots before and after the update.
 
@@ -140,7 +142,7 @@ class UpdateFlow:
                     f"Slot {expected_slot} is not in the expected state after the update [{state}]."
                 )
 
-    def execute_all_steps(self, version: versions.SoftwareVersion):
+    def execute_all_steps(self, version: versions.SoftwareVersion) -> None:
         """
         Executes all steps of the update process for the specified version.
 
@@ -154,4 +156,4 @@ class UpdateFlow:
         self.install_bundle()
         self.activate_update()
         self.verify_update()
-        
+

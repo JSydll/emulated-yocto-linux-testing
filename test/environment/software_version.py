@@ -5,6 +5,8 @@
 import enum
 import re
 
+from labgrid.driver import SSHDriver
+
 _EXPECTED_LATEST_VERSION: str = '3.1'
 _EXPECTED_LTS_VERSION: str = '3.0'
 _EXPECTED_MANUFACTURING_VERSION: str = '1.0'
@@ -18,7 +20,7 @@ class SoftwareVersion(enum.Enum):
     manufacturing = _EXPECTED_MANUFACTURING_VERSION
 
 
-def get_current_software_version(ssh):
+def get_current_software_version(ssh: SSHDriver) -> SoftwareVersion:
     """Read the currently running software version from the target.
 
     Args:

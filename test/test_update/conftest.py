@@ -6,10 +6,13 @@
 
 import pytest
 
+from typing import Callable
+from labgrid import Environment
+
 import environment.update as update
 import environment.software_version as versions
 
-def get_update_flow(env, preset_software_version: versions.SoftwareVersion):
+def get_update_flow(env: Environment, preset_software_version: versions.SoftwareVersion) -> update.UpdateFlow:
     """
     Initializes and returns an update flow for a given environment and software version.
 
@@ -56,9 +59,9 @@ def get_update_flow(env, preset_software_version: versions.SoftwareVersion):
     
 
 
-def create_update_fixture(software_version):
+def create_update_fixture(software_version: versions.SoftwareVersion) -> Callable[[Environment], update.UpdateFlow]:
     @pytest.fixture(scope='function')
-    def _update_fixture(env):
+    def _update_fixture(env: Environment) -> update.UpdateFlow:
         """
         Initializes and returns an UpdateFlow instance for running updates
         started from the specified software version.
@@ -66,6 +69,6 @@ def create_update_fixture(software_version):
         return get_update_flow(env, software_version)
     return _update_fixture
 
-update_manufacturing = create_update_fixture(versions.SoftwareVersion.manufacturing)
-update_lts = create_update_fixture(versions.SoftwareVersion.lts)
-update_latest = create_update_fixture(versions.SoftwareVersion.latest)
+update_manufacturing: Callable[[Environment], update.UpdateFlow] = create_update_fixture(versions.SoftwareVersion.manufacturing)
+update_lts: Callable[[Environment], update.UpdateFlow] = create_update_fixture(versions.SoftwareVersion.lts)
+update_latest: Callable[[Environment], update.UpdateFlow] = create_update_fixture(versions.SoftwareVersion.latest)

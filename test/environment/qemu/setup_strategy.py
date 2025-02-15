@@ -16,6 +16,7 @@ import enum
 
 import attr
 
+from typing import Any, Union 
 from labgrid import target_factory, step
 from labgrid.strategy import Strategy, StrategyError
 from labgrid.util import get_free_port
@@ -38,17 +39,17 @@ class QEMUSetupStrategy(Strategy):
 
     status = attr.ib(default=Status.unknown)
 
-    def __attrs_post_init__(self):
+    def __attrs_post_init__(self) -> None:
         super().__attrs_post_init__()
         self.__port_forward = None
         self.__remote_port = self.ssh.networkservice.port
 
     @step(result=True)
-    def get_remote_address(self):
+    def get_remote_address(self) -> str:
         return str(self.shell.get_ip_addresses()[0].ip)
 
     @step()
-    def update_network_service(self):
+    def update_network_service(self) -> None:
         new_address = self.get_remote_address()
         networkservice = self.ssh.networkservice
 
@@ -78,7 +79,7 @@ class QEMUSetupStrategy(Strategy):
                 networkservice.port = self.__remote_port
 
     @step(args=["state"])
-    def transition(self, state, *, step):
+    def transition(self, state: Union[Status, str], *, step: Any) -> None:
         if not isinstance(state, Status):
             state = Status[state]
 

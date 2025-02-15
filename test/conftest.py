@@ -4,9 +4,13 @@
 
 import pytest
 
+from typing import Any
+
+from labgrid import Target
+from labgrid.driver import ShellDriver, SSHDriver
 
 @pytest.fixture(scope='session')
-def default_shell(target, strategy):
+def default_shell(target: Target, strategy: Any) -> ShellDriver:
     """
     Bring the default target in the 'shell' state and provide a ShellDriver instance.
     """
@@ -16,7 +20,7 @@ def default_shell(target, strategy):
 
 
 @pytest.fixture(scope='session')
-def default_ssh(target, strategy):
+def default_ssh(target: Target, strategy: Any) -> ShellDriver:
     """
     Bring the default target in the 'shell' state and provide a SSHDriver instance.
     """

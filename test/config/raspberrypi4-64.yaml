@@ -10,18 +10,18 @@ targets:
           port: /dev/ttyUSB0
           speed: 115200
       - UpdateBundles:
-          latest: /artifacts/latest.update-bundle-raspberrypi4.raucb
-          lts: /artifacts/lts.update-bundle-raspberrypi4.raucb
-          manufacturing: /artifacts/manufacturing.update-bundle-raspberrypi4.raucb
+          latest: /artifacts/latest.update-bundle-raspberrypi4-64.raucb
+          lts: /artifacts/lts.update-bundle-raspberrypi4-64.raucb
+          manufacturing: /artifacts/manufacturing.update-bundle-raspberrypi4-64.raucb
 
     drivers:
       # Note: Power control is currently not supported in this demo
       - FakePowerDriver: {}
       - SerialDriver: {}
       - ShellDriver:
-          login_prompt: "raspberrypi4 login: "
+          login_prompt: "raspberrypi4-64 login: "
           username: "root"
-          prompt: 'root@\w+:[^ ]+ '
+          prompt: 'root@[^:]+:[^ ]+ '
           login_timeout: 200
       - SSHDriver: {}
       - ShellStrategy: {}

@@ -4,7 +4,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 # Configuration
 # ----
 # Variables to set when sourcing the environment
-TARGET_MACHINE="${TARGET_MACHINE:-qemuarm64}"
+TARGET_MACHINE="${TARGET_MACHINE:-virt-aarch64}"
 TEST_ARTIFACTS_DIR="${TEST_ARTIFACTS_DIR:-${SCRIPT_DIR}/work/artifacts}"
 
 KAS_CMD="KAS_WORK_DIR=${SCRIPT_DIR}/work ${SCRIPT_DIR}/tools/build/kas-container.4.5"
@@ -18,7 +18,7 @@ TEST_VERSIONS=(
 TEST_BUILD_ARTIFACTS=(
     'bootenv.img'
     'u-boot.bin'
-    'core-image-minimal-qemuarm64.rootfs.wic.qcow2'
+    'core-image-minimal-virt-aarch64.rootfs.wic.qcow2'
     "update-bundle-${TARGET_MACHINE}.raucb"
 )
 TEST_DOCKER_IMAGE="emulated-linux-testing"

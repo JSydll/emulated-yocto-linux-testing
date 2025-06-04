@@ -13,7 +13,7 @@ Simply source the `env-init` file and then execute, for example:
 ```bash
 build-image
 build-publish
-test-run-pytest --lg-env config/qemuarm64.yaml
+test-run-pytest --lg-env config/virt-aarch64.yaml
 ```
 
 If you want to build the `raspberrypi4-64` reference image, you need to
@@ -48,8 +48,9 @@ To be of value, the proposed solution aims to fulfill a set of requirements:
 
 ## Approach
 
-- Use reference integrations for both `qemuarm64` and a real board (Raspberry Pi 4). These do differ especially in the boot chain, but run the same `core-image-minimal`.
+- Use reference integrations for both `virt-aarch64` and a real board (Raspberry Pi 4). These do differ especially in the boot chain, but run the same `core-image-minimal`.
 - Use of Yocto's `multiconfig` to mimic different software versions, resulting in one build producing three versions.
+  > Attention: This wouldn't be done in a productive environment - time will produde multiple versions there instead
 - Publish build artifacts into a mount-volume of the test environment Docker container.
 - Mount the volume read-only to ensure artifacts are not modified.
 - Provide a `labgrid` environment config for emulated targets, one target per software version to have that "preinstalled".
@@ -78,7 +79,7 @@ reference integrations, so the findings have several limitations:
 
 - "Hardware" differences:
   - Raspberry Pi 4: Cortex-A72 4x 1.8GHz, 4 GB LPDDR4-3200 SDRAM
-  - `qemuarm64`: Cortex-A57 4x up to 2GHz, 3 GB RAM 
+  - `virt-aarch64`: Cortex-A72 4x up to 2GHz, 4 GB (V)RAM 
 - Obvious differences between test and "productive" images
   - Target specific boot flow
   - Changes introduced in `meta-testing`
@@ -119,7 +120,7 @@ real    9m22,318s
 ### Results when running emulated, with sequential execution
 
 ```bash
-$ time test-run-pytest --durations=8 --lg-env config/qemuarm64.yaml -m update
+$ time test-run-pytest --durations=8 --lg-env config/virt-aarch64.yaml -m update
 
 === slowest 8 durations ===
 75.59s call     test_update/update_flow_test.py::test_update_from_latest_succeeds[SoftwareVersion.latest]
@@ -138,7 +139,7 @@ real    8m52,286s
 ### Results when running emulated, with parallel execution
 
 ```bash
-$ time test-run-pytest -n auto --durations=5 --lg-env config/qemuarm64.yaml -m update
+$ time test-run-pytest -n auto --durations=5 --lg-env config/virt-aarch64.yaml -m update
 
 4 workers [5 items]     
 

@@ -1,13 +1,10 @@
-# Rationale
+# Rationale for this layer
 
 ## Modifying the images under test
 
 While you'd normally want to keep your images under test unmodified,
 this demo requires a few adjustments to the reference configurations
 for the sake of simplicity.
-
-Also, some of the adjustments introduced here would be part of the
-productive configuration (for example the deployment of a software version file).
 
 ## Providing multiple software versions
 

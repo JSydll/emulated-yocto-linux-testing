@@ -4,6 +4,8 @@ header:
     - repo: meta-rauc-community
       file: meta-rauc-qemuarm/kas-qemuarm.yml
 
+machine: virt-aarch64
+
 target:
   - mc:manufacturing:core-image-minimal
   - mc:manufacturing:update-bundle
@@ -16,11 +18,13 @@ repos:
   meta-rauc-community:
     url: "https://github.com/rauc/meta-rauc-community"
     branch: master
+    path: layers/meta-rauc-community
     layers:
       meta-rauc-qemuarm:
 
   emulated-yocto-linux-testing:
     layers:
+      src/meta-product:
       src/meta-testing:
 
 local_conf_header:

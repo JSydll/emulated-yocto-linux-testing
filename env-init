@@ -6,6 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 # Variables to set when sourcing the environment
 TARGET_MACHINE="${TARGET_MACHINE:-virt-aarch64}"
 TEST_ARTIFACTS_DIR="${TEST_ARTIFACTS_DIR:-${SCRIPT_DIR}/work/artifacts}"
+GENERATED_LG_CONFIG="/artifacts/latest.lg-env-config.yml"
 
 KAS_CMD="KAS_WORK_DIR=${SCRIPT_DIR}/work ${SCRIPT_DIR}/tools/build/kas-container.4.5"
 KAS_CONF="${SCRIPT_DIR}/conf/kas-${TARGET_MACHINE}.yml"
@@ -20,6 +21,7 @@ TEST_BUILD_ARTIFACTS=(
     'u-boot.bin'
     'core-image-minimal-virt-aarch64.rootfs.wic.qcow2'
     "update-bundle-${TARGET_MACHINE}.raucb"
+    'lg-env-config.yml'
 )
 TEST_DOCKER_IMAGE="emulated-linux-testing"
 # ----
@@ -71,10 +73,15 @@ function run_in_testenv() {
     if [[ "${TARGET_MACHINE}" == "raspberrypi4-64" ]]; then
         extra_opts+="--device /dev/ttyUSB0 --network host "
     fi
+    # For some unknown reason, pytest is not able to locate the pytest.ini
+    # without explicitly specifying it in non-interactive runs.
+    PYTEST_OPTIONS="-c /test/pytest.ini --lg-env ${GENERATED_LG_CONFIG}"
+    # Spawn an ephemeral test container and pass command parameters to it
     docker run --rm -t \
         -v "${SCRIPT_DIR}/test"/:/test/ \
         -v "${TEST_ARTIFACTS_DIR}"/:/artifacts:ro \
         -w /test ${extra_opts} \
+        -e PYTEST_ADDOPTS="${PYTEST_OPTIONS}" \
         ${TEST_DOCKER_IMAGE} "$@"
 }
 

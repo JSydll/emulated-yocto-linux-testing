@@ -1,0 +1,76 @@
+targets:
+  main:
+    resources: &common-resources
+      - NetworkService:
+          address: ""
+          port: 22
+          username: root
+      - UpdateBundles:
+          latest: "@@LG_ARTIFACT_MOUNTPOINT@@/latest.@@UPDATE_BUNDLE_ARTIFACT@@"
+          lts: "@@LG_ARTIFACT_MOUNTPOINT@@/lts.@@UPDATE_BUNDLE_ARTIFACT@@"
+          manufacturing: "@@LG_ARTIFACT_MOUNTPOINT@@/manufacturing.@@UPDATE_BUNDLE_ARTIFACT@@"
+
+    drivers:
+      - QEMUDriver:
+          qemu_bin: qemu_aarch64
+          machine: virt
+          cpu: @@QB_CPU_VALUE@@
+          memory: @@QB_MEM_VALUE@@
+          nic: user,model=virtio-net-pci
+          bios: uboot_latest
+          disk: rootfs_latest
+          extra_args: " @@QB_SMP@@ -snapshot -drive if=pflash,format=raw,index=1,readonly=off,file=@@LG_ARTIFACT_MOUNTPOINT@@/latest.bootenv.img"
+      - ShellDriver: &shell-config
+          login_prompt: "@@MACHINE@@ login: "
+          username: "root"
+          prompt: 'root@@@MACHINE@@+:[^ ]+ '
+          login_timeout: 200
+      - SSHDriver: {}
+      - QEMUSetupStrategy: {}
+
+  lts:
+    resources: *common-resources
+    drivers:
+      - QEMUDriver:
+          qemu_bin: qemu_aarch64
+          machine: virt
+          cpu: @@QB_CPU_VALUE@@
+          memory: @@QB_MEM_VALUE@@
+          nic: user,model=virtio-net-pci
+          bios: uboot_lts
+          disk: rootfs_lts
+          extra_args: " @@QB_SMP@@ -snapshot -drive if=pflash,format=raw,index=1,readonly=off,file=@@LG_ARTIFACT_MOUNTPOINT@@/lts.bootenv.img"
+      - ShellDriver: *shell-config
+      - SSHDriver: {}
+      - QEMUSetupStrategy: {}
+
+  manufacturing:
+    resources: *common-resources
+    drivers:
+      - QEMUDriver:
+          qemu_bin: qemu_aarch64
+          machine: virt
+          cpu: @@QB_CPU_VALUE@@
+          memory: @@QB_MEM_VALUE@@
+          nic: user,model=virtio-net-pci
+          bios: uboot_manufacturing
+          disk: rootfs_manufacturing
+          extra_args: " @@QB_SMP@@ -snapshot -drive if=pflash,format=raw,index=1,readonly=off,file=@@LG_ARTIFACT_MOUNTPOINT@@/manufacturing.bootenv.img"
+      - ShellDriver: *shell-config
+      - SSHDriver: {}
+      - QEMUSetupStrategy: {}
+
+tools:
+  qemu_aarch64: /usr/bin/qemu-system-aarch64
+
+images:
+  uboot_latest: "@@LG_ARTIFACT_MOUNTPOINT@@/latest.u-boot.bin"
+  rootfs_latest: "@@LG_ARTIFACT_MOUNTPOINT@@/latest.@@ROOTFS_ARTIFACT@@"
+  uboot_lts: "@@LG_ARTIFACT_MOUNTPOINT@@/lts.u-boot.bin"
+  rootfs_lts: "@@LG_ARTIFACT_MOUNTPOINT@@/lts.@@ROOTFS_ARTIFACT@@"
+  uboot_manufacturing: "@@LG_ARTIFACT_MOUNTPOINT@@/manufacturing.u-boot.bin"
+  rootfs_manufacturing: "@@LG_ARTIFACT_MOUNTPOINT@@/manufacturing.@@ROOTFS_ARTIFACT@@"
+
+imports:
+  - environment.qemu.setup_strategy
+  - environment.update

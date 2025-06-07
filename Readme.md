@@ -13,7 +13,7 @@ Simply source the `env-init` file and then execute, for example:
 ```bash
 build-image
 build-publish
-test-run-pytest --lg-env config/virt-aarch64.yaml
+test-run-pytest
 ```
 
 If you want to build the `raspberrypi4-64` reference image, you need to
@@ -28,6 +28,18 @@ settings. You need to setup your test host to share its network with the Raspber
 One of the main advantages of using an emulated target for testing is that
 it allows scaling out - i.e. by spawning multiple QEMU instances.
 This can be achieved by adding the `-n auto` option to the test execution command.
+
+### Selection of tagged tests
+
+As not every test brings _verification value_ when executed in every development
+scenario (such as merging feature PRs, running nightlies/weeklies or building a
+product release), grouping tests along their applicable scenarios can bring significant
+efficiency gains, too.
+In this demo for example, you can select a subset of tests to be executed as a smoke
+test by adding the `-m smoketest` option.
+See the [pytest.ini](test/pytest.ini) for more details.
+
+---
 
 ## Solution requirements
 
@@ -88,20 +100,28 @@ reference integrations, so the findings have several limitations:
 ## Benchmarks
 
 To get some indication of performance and possible benefits of using emulation,
-the update tests were run in the different scenarios.
+the update tests were executed on an Ubuntu24.04 WSL instance, running on a 8/16 core
+Intel i9 laptop with a nominal 32GB of RAM.
 
 ### Short summary
 
 The preliminary findings (keeping the above limitations in mind):
 
-- tests executed in parallel on emulation can be **up to 2.5 times faster** than running them on hardware
-- parallel execution alone brings a **speed gain of around 2 times**
+- tests executed in parallel on emulation can be **up to 4.5 times faster** than running them on hardware
+- parallel execution alone brings a **speed gain of around 2.8 times**
 - tests on hardware were observed more fragile, at times leading to every second run to fail
+- speed gains in the emulated setup heavily depend on the host performance (i.e. running tests on less 
+  performant hosts may diminish)
+- for some tests it might actually be more efficient to execute them sequentially on the same (continuously
+  running QEMU instance), because of the overhead of booting a dedicated instance for each
+
+**Attention**: These results are of limited validity, given they were not acquired in a scientific
+or cleanly reproducible way.
 
 ### Results on real hardware (Raspberry Pi 4)
 
 ```bash
-$ time test-run-pytest --durations=8 --lg-env config/raspberrypi4-64.yaml -m update
+$ time test-run-pytest --durations=8 -m update
 
 === slowest 8 durations ===
 103.93s setup    test_update/update_flow_test.py::test_update_from_manufacturing_succeeds[SoftwareVersion.latest]
@@ -120,37 +140,37 @@ real    9m22,318s
 ### Results when running emulated, with sequential execution
 
 ```bash
-$ time test-run-pytest --durations=8 --lg-env config/virt-aarch64.yaml -m update
+$ time test-run-pytest --durations=8 -m update
 
 === slowest 8 durations ===
-75.59s call     test_update/update_flow_test.py::test_update_from_latest_succeeds[SoftwareVersion.latest]
-74.21s call     test_update/update_flow_test.py::test_update_from_lts_succeeds[SoftwareVersion.latest]
-73.00s call     test_update/update_flow_test.py::test_update_from_lts_succeeds[SoftwareVersion.lts]
-71.65s call     test_update/update_flow_test.py::test_update_from_manufacturing_succeeds[SoftwareVersion.latest]
-71.62s setup    test_update/update_flow_test.py::test_update_from_manufacturing_succeeds[SoftwareVersion.latest]
-70.74s call     test_update/update_flow_test.py::test_update_from_manufacturing_succeeds[SoftwareVersion.lts]
-32.08s setup    test_update/update_flow_test.py::test_update_from_latest_succeeds[SoftwareVersion.latest]
-30.29s setup    test_update/update_flow_test.py::test_update_from_lts_succeeds[SoftwareVersion.lts]
-=== 5 passed, 2 deselected in 530.86s (0:08:50) ===
+47.26s setup    test_update/update_flow_test.py::test_update_from_manufacturing_succeeds[SoftwareVersion.latest]
+46.61s call     test_update/update_flow_test.py::test_update_from_lts_succeeds[SoftwareVersion.latest]
+46.03s call     test_update/update_flow_test.py::test_update_from_manufacturing_succeeds[SoftwareVersion.latest]
+45.80s call     test_update/update_flow_test.py::test_update_from_lts_succeeds[SoftwareVersion.lts]
+45.42s call     test_update/update_flow_test.py::test_update_from_latest_succeeds[SoftwareVersion.latest]
+44.75s call     test_update/update_flow_test.py::test_update_from_manufacturing_succeeds[SoftwareVersion.lts]
+25.62s setup    test_update/update_flow_test.py::test_update_from_lts_succeeds[SoftwareVersion.lts]
+25.24s setup    test_update/update_flow_test.py::test_update_from_latest_succeeds[SoftwareVersion.latest]
+=== 5 passed, 2 deselected in 352.67s (0:05:52) ===
 
-real    8m52,286s
+real    5m54.555s
 ```
 
 ### Results when running emulated, with parallel execution
 
 ```bash
-$ time test-run-pytest -n auto --durations=5 --lg-env config/virt-aarch64.yaml -m update
+$ time test-run-pytest -n auto --durations=5 -m update
 
-4 workers [5 items]     
+8 workers [5 items]     
 
 === slowest 5 durations ===
-95.81s call     test_update/update_flow_test.py::test_update_from_manufacturing_succeeds[SoftwareVersion.lts]
-95.75s call     test_update/update_flow_test.py::test_update_from_manufacturing_succeeds[SoftwareVersion.latest]
-95.74s call     test_update/update_flow_test.py::test_update_from_lts_succeeds[SoftwareVersion.latest]
-95.35s call     test_update/update_flow_test.py::test_update_from_lts_succeeds[SoftwareVersion.lts]
-69.79s call     test_update/update_flow_test.py::test_update_from_latest_succeeds[SoftwareVersion.latest]
-=== 5 passed in 234.79s (0:03:54) ===
+86.72s call     test_update/update_flow_test.py::test_update_from_manufacturing_succeeds[SoftwareVersion.lts]
+83.69s call     test_update/update_flow_test.py::test_update_from_lts_succeeds[SoftwareVersion.lts]
+82.80s call     test_update/update_flow_test.py::test_update_from_lts_succeeds[SoftwareVersion.latest]
+82.55s call     test_update/update_flow_test.py::test_update_from_latest_succeeds[SoftwareVersion.latest]
+80.90s call     test_update/update_flow_test.py::test_update_from_manufacturing_succeeds[SoftwareVersion.latest]
+=== 5 passed in 125.16s (0:02:05) ===
 
-real    3m56,350s
+real    2m6.806s
 ```
 

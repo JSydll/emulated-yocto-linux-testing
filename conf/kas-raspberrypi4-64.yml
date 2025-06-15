@@ -31,7 +31,7 @@ repos:
   emulated-yocto-linux-testing:
     layers:
       src/meta-product:
-      src/meta-testing:
+      src/meta-demo-only:
 
 target:
   - mc:manufacturing:core-image-minimal
@@ -42,7 +42,7 @@ target:
   - mc:latest:update-bundle
 
 local_conf_header:
-  meta-custom: |
+  demo: |
     # MACHINE
     # ---
     ENABLE_UART = "1"

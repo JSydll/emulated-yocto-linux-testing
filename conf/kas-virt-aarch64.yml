@@ -25,10 +25,10 @@ repos:
   emulated-yocto-linux-testing:
     layers:
       src/meta-product:
-      src/meta-testing:
+      src/meta-demo-only:
 
 local_conf_header:
-  meta-testing: |
+  demo: |
     # TESTING
     # ---
     # As there are ongoing fixes for multiconfig setups and SPDX exporting,

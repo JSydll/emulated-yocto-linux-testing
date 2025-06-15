@@ -6,7 +6,7 @@ distro: poky
 
 defaults:
   repos:
-    branch: scarthgap
+    branch: walnascar
 
 repos:
   poky:
@@ -20,14 +20,17 @@ repos:
     path: layers/meta-raspberrypi
   meta-rauc:
     url: "https://github.com/rauc/meta-rauc.git"
+    branch: master
     path: layers/meta-rauc
   meta-rauc-community:
     url: "https://github.com/rauc/meta-rauc-community"
+    branch: master
     layers:
       meta-rauc-raspberrypi:
 
   emulated-yocto-linux-testing:
     layers:
+      src/meta-product:
       src/meta-testing:
 
 target:
@@ -55,7 +58,7 @@ local_conf_header:
     IMAGE_INSTALL:append = " rauc"
     IMAGE_FSTYPES:append = " ext4"
     WKS_FILE = "sdimage-dual-raspberrypi.wks.in"
-    EXTRA_IMAGE_FEATURES += "debug-tweaks"
+    EXTRA_IMAGE_FEATURES += "allow-empty-password allow-root-login empty-root-password"
     EXTRA_IMAGE_FEATURES += "ssh-server-openssh"
 
     # TESTING

@@ -44,6 +44,7 @@ do_deploy:append:virt-aarch64() {
         -e "s|@@QB_CPU_VALUE@@|${QB_CPU_VALUE}|" \
         -e "s|@@QB_MEM_VALUE@@|${QB_MEM_VALUE}|" \
         -e "s|@@QB_SMP@@|${QB_SMP}|" \
+        -e "s|@@QB_EXTRA_OPTS@@|${QB_EXTRA_OPTS}|" \
         -i ${DEPLOYDIR}/${LG_CONFIG_FILE}
 }
 

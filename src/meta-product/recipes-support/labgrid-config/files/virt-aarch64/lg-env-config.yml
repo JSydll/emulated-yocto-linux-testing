@@ -1,6 +1,6 @@
 features:
 - os-base
-#- os-canbus
+- os-canbus
 
 targets:
   main:
@@ -23,7 +23,7 @@ targets:
           nic: user,model=virtio-net-pci
           bios: uboot_latest
           disk: rootfs_latest
-          extra_args: " @@QB_SMP@@ -snapshot -drive if=pflash,format=raw,index=1,readonly=off,file=@@LG_ARTIFACT_MOUNTPOINT@@/latest.bootenv.img"
+          extra_args: " @@QB_SMP@@ @@QB_EXTRA_OPTS@@ -snapshot -drive if=pflash,format=raw,index=1,readonly=off,file=@@LG_ARTIFACT_MOUNTPOINT@@/latest.bootenv.img"
       - ShellDriver: &shell-config
           login_prompt: "@@MACHINE@@ login: "
           username: "root"

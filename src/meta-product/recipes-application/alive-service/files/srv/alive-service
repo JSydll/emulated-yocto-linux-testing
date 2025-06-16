@@ -1,0 +1,20 @@
+#!/bin/bash
+#
+# This is just a stub for the actual service.
+# It only performs basic precondition checks.
+
+# Precondition check
+if ! ip link show can0 &>/dev/null; then
+    echo "Missing CAN interface!"
+    exit 1
+fi
+state="$(cat /sys/class/net/can0/operstate)"
+if [[ "$state" != "up" ]]; then
+    echo "can0 is not up!"
+    exit 2
+fi
+
+# Keeping the service alive until manual termination
+echo "This stub needs to be terminated explicitly (Ctrl+C)."
+mkfifo /tmp/waitpipe
+read < /tmp/waitpipe

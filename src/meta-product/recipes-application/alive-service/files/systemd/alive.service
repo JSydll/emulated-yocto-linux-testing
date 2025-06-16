@@ -1,0 +1,11 @@
+[Unit]
+Description=Alive Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/srv/alive-service
+Restart=no
+
+[Install]
+WantedBy=multi-user.target

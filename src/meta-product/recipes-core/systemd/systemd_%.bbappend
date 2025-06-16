@@ -1,0 +1,1 @@
+PACKAGECONFIG:append:virt-aarch64 = " networkd resolved"

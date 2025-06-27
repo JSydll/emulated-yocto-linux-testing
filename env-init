@@ -55,15 +55,17 @@ alias set-machine="set_machine"
 # ----
 alias build-shell="${KAS_CMD} shell ${KAS_CONF}"
 alias build-image="${KAS_CMD} build ${KAS_CONF}"
-alias build-runqemu="${KAS_CMD} shell ${KAS_CONF} -c 'runqemu wic.qcow2 serial nographic slirp'"
+alias build-runqemu="${KAS_CMD} shell ${KAS_CONF} -c 'runqemu mc:latest:core-image-minimal wic.qcow2 serial nographic slirp'"
 
 function publish_test_artifacts() {
     rm -rf "${TEST_ARTIFACTS_DIR:?}"/*
     mkdir -p "${TEST_ARTIFACTS_DIR}"
-    for version in "${TEST_VERSIONS[@]}"; do
-        for artifact in "${TEST_BUILD_ARTIFACTS[@]}"; do
-            path="${SCRIPT_DIR}/work/build/tmp-${version}/deploy/images/${TARGET_MACHINE}/${artifact}"
-            cp "${path}" "${TEST_ARTIFACTS_DIR}/${version}.${artifact}" &>/dev/null || true
+    for machine in ${VIRT_MACHINE} ${HW_MACHINE}; do
+        for version in "${TEST_VERSIONS[@]}"; do
+            for artifact in "${TEST_BUILD_ARTIFACTS[@]}"; do
+                path="${SCRIPT_DIR}/work/build/tmp-${version}/deploy/images/${machine}/${artifact}"
+                cp "${path}" "${TEST_ARTIFACTS_DIR}/${version}.${artifact}" &>/dev/null || true
+            done
         done
     done
 }

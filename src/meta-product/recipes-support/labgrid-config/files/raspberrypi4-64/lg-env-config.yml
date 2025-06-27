@@ -1,3 +1,8 @@
+features:
+- os-base
+#- os-canbus
+#- peripherals-canbus # Indicates the device has physical CAN lines attached
+
 targets:
   main:
     resources:

@@ -1,3 +1,7 @@
+features:
+- os-base
+#- os-canbus
+
 targets:
   main:
     resources: &common-resources

@@ -76,6 +76,9 @@ To be of value, the proposed solution aims to fulfill a set of requirements:
 - Provide a `labgrid` environment config for emulated targets, one target per software version to have that "preinstalled".
 - Use the built images as disks with the `-snapshot` option, making the QEMU instances ephemeral. This provides deterministic start conditions for tests, reduces test setup time, and eliminates the need for cleanup after tests.
 - Use of function-scoped fixtures for running complex feature tests, such as software updates.
+- Use pytest markers to select tests for individual trigger scenarios (e.g. `smoketest` or `nightly`) as well as
+  to indicate meaningfulness of execution in certain environments
+- Use labgrid [features](https://labgrid.readthedocs.io/en/latest/usage.html#feature-flags)
 - Allow parallel execution of tests using `pytest-xdist` - this is only possible with read-only images and clean start on each test case.
 
 ## Insights

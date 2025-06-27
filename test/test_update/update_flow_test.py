@@ -8,9 +8,11 @@ import environment.update as update
 
 from environment.software_version import SoftwareVersion
 
+# All tests in this module are related to the update feature.
 pytestmark = pytest.mark.update
 
-@pytest.mark.on_manufacturing
+@pytest.mark.release
+@pytest.mark.hardware_only
 @pytest.mark.parametrize('version_to_install',
         [SoftwareVersion.lts, SoftwareVersion.latest]
     )
@@ -21,7 +23,7 @@ def test_update_from_manufacturing_succeeds(update_manufacturing: update.UpdateF
     update_manufacturing.execute_all_steps(version_to_install)
 
 
-@pytest.mark.on_lts
+@pytest.mark.nightly
 @pytest.mark.parametrize('version_to_install',
         [SoftwareVersion.lts, SoftwareVersion.latest]
     )
@@ -33,7 +35,6 @@ def test_update_from_lts_succeeds(update_lts: update.UpdateFlow, version_to_inst
 
 
 @pytest.mark.smoketest
-@pytest.mark.on_latest
 @pytest.mark.parametrize('version_to_install',
         [SoftwareVersion.latest]
     )

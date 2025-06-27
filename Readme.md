@@ -31,7 +31,7 @@ This can be achieved by adding the `-n auto` option to the test execution comman
 
 ### Selection of tagged tests
 
-As not every test brings _verification value_ when executed in every development
+As not every test has _meaningful results_ when executed in every development
 scenario (such as merging feature PRs, running nightlies/weeklies or building a
 product release), grouping tests along their applicable scenarios can bring significant
 efficiency gains, too.
@@ -57,6 +57,14 @@ To be of value, the proposed solution aims to fulfill a set of requirements:
 - _Target-independent tests_: It should be possible to have an unified test implementation
   for both real-hardware and emulated targets. If necessary, tests that only apply on
   either one can be marked and excluded on a global level.
+
+## Assumptions
+
+- Tests are expected to be grouped by execution environment, i.e. individual pipeline stages
+  would be used to run host/emulation or hardware tests.
+- Each test scope (unit/component/integration/system/...) also runs in an individual stage,
+  potentially building a test matrix against the different environments.
+
 
 ## Approach
 

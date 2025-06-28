@@ -18,7 +18,7 @@
 	};
 
 	memory@40000000 {
-		reg = <0x00 0x40000000 0x00 0xc0000000>;
+		reg = <0x00 0x40000000 0x01 0x00>;
 		device_type = "memory";
 	};
 
@@ -292,14 +292,6 @@
 		compatible = "arm,pl011\0arm,primecell";
 	};
 
-	pl011@9040000 {
-		clock-names = "uartclk\0apb_pclk";
-		clocks = <0x8000 0x8000>;
-		interrupts = <0x00 0x08 0x04>;
-		reg = <0x00 0x9040000 0x00 0x1000>;
-		compatible = "arm,pl011\0arm,primecell";
-	};
-
 	pmu {
 		interrupts = <0x01 0x07 0xf04>;
 		compatible = "arm,armv8-pmuv3";
@@ -407,12 +399,11 @@
 
 	aliases {
 		serial0 = "/pl011@9000000";
-		serial1 = "/pl011@9040000";
 	};
 
 	chosen {
 		stdout-path = "/pl011@9000000";
-		rng-seed = <0xb87449cf 0xb944a551 0xbfb62be0 0x6d387015 0x2a62aeb8 0x4e55c9fc 0x40de8c4b 0x4023b0d3>;
-		kaslr-seed = <0x2d8ecfc0 0x412a64c2>;
+		rng-seed = <0x6b3e70d7 0xf0dea909 0xc3b73c98 0x76fd474d 0x772fd9b4 0x196a7f8d 0x3fbade66 0xba5bc78d>;
+		kaslr-seed = <0x69872a61 0xa2482c1b>;
 	};
 };

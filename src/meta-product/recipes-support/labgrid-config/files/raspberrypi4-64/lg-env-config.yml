@@ -1,7 +1,7 @@
 features:
 - os-base
 #- os-canbus
-#- peripherals-canbus # Indicates the device has physical CAN lines attached
+#- testlab-canbus # Indicates the device has physical connections to the testlab
 
 targets:
   main:

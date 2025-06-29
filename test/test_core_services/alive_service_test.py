@@ -11,10 +11,10 @@ from labgrid.driver import SSHDriver
 
 _SERVICE_SYSTEMD_UNIT: str = "alive.service"
 
+pytestmark = pytest.mark.lg_feature("os-canbus")
 
 @pytest.mark.smoketest
 @pytest.mark.emulation_only
-@pytest.mark.lg_feature("os-canbus")
 def test_alive_service_bootstrapping(default_ssh: SSHDriver) -> None:
     """
     Ensure that the Alive Service is automatically started on boot and comes up healthy.
@@ -26,7 +26,7 @@ def test_alive_service_bootstrapping(default_ssh: SSHDriver) -> None:
 
 
 @pytest.mark.nightly
-@pytest.mark.lg_feature("peripherals-canbus")
+@pytest.mark.lg_feature(["testlab-canbus"])
 def test_alive_service_acks_request_for_syn() -> None:
     """
     Sends a SYN request to the target via CAN and expects to receive an ACK from the Alive Service.

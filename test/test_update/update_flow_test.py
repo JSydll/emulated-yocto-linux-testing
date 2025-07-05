@@ -9,7 +9,7 @@ import environment.update as update
 from environment.software_version import SoftwareVersion
 
 # All tests in this module are related to the update feature.
-pytestmark = [pytest.mark.lg_feature("os-base"), pytest.mark.update]
+pytestmark = pytest.mark.update
 
 @pytest.mark.release
 @pytest.mark.hardware_only

@@ -1,5 +1,4 @@
 features:
-- os-base
 #- os-canbus
 #- testlab-canbus # Indicates the device has physical connections to the testlab
 

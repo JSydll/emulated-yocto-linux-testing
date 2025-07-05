@@ -6,8 +6,6 @@ import pytest
 
 from labgrid.driver import ShellDriver, SSHDriver
 
-pytestmark = [pytest.mark.lg_feature("os-base")]
-
 @pytest.mark.smoketest
 def test_shell_command(default_shell: ShellDriver) -> None:
     """Ensures the target can be reached via serial."""

@@ -1,5 +1,4 @@
 features:
-- os-base
 - os-canbus
 
 targets:

@@ -4,26 +4,11 @@ header:
     - conf/includes/base.yml
 
 machine: raspberrypi4-64
-distro: poky
-
-defaults:
-  repos:
-    branch: walnascar
 
 repos:
-  poky:
-    url: "https://git.yoctoproject.org/git/poky"
-    path: layers/poky
-    layers:
-      meta:
-      meta-poky:
   meta-raspberrypi:
     url: "https://github.com/agherzan/meta-raspberrypi"
     path: layers/meta-raspberrypi
-  meta-rauc:
-    url: "https://github.com/rauc/meta-rauc.git"
-    branch: master
-    path: layers/meta-rauc
 
 local_conf_header:
   raspberrypi4-64: |
@@ -31,13 +16,7 @@ local_conf_header:
     ENABLE_UART = "1"
     RPI_USE_U_BOOT = "1"
 
-    # DISTRO
-    DISTRO_FEATURES:append = " rauc"
-    INIT_MANAGER = "systemd"
-
     # IMAGE
     IMAGE_INSTALL:append = " rauc"
     IMAGE_FSTYPES:append = " ext4"
     WKS_FILE = "sdimage-dual-raspberrypi.wks.in"
-    EXTRA_IMAGE_FEATURES += "allow-empty-password allow-root-login empty-root-password"
-    EXTRA_IMAGE_FEATURES += "ssh-server-openssh"

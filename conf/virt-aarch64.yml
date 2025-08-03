@@ -2,7 +2,30 @@ header:
   version: 14
   includes:
     - conf/includes/base.yml
-    - repo: meta-rauc-community
-      file: meta-rauc-qemuarm/kas-qemuarm.yml
 
 machine: virt-aarch64
+
+repos:
+  meta-arm:
+    url: "https://github.com/jonmason/meta-arm"
+    branch: master
+    path: layers/meta-arm
+    layers:
+      meta-arm:
+      meta-arm-toolchain:
+
+local_conf_header:
+  secure-boot: |
+    # Packageconfig for u-boot and systemd-boot
+    DISTRO_FEATURES:append = " efi secure-boot"
+
+    # TODO: Update this as soon as actual FIP is available.
+    FIRMWARE_BINARY = "u-boot-${MACHINE}-${RELEASE_TYPE}.bin"
+
+    # systemd-boot is used as A/B switching bootloader
+    # run in the UEFI environment provided by the firmware (i.e. u-boot)
+    PREFERRED_PROVIDER_virtual/bootloader = "systemd-boot"
+    EFI_PROVIDER = "systemd-boot"
+
+    # We do not manually build multiconfigs but the main image depends on it
+    BBMULTICONFIG = "firmware uefi-shell"

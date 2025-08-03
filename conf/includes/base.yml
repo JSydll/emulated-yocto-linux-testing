@@ -5,7 +5,26 @@ target:
   - core-image-minimal
   - update-bundle
 
+distro: poky
+
+defaults:
+  repos:
+    branch: walnascar
+
 repos:
+  poky:
+    url: "https://git.yoctoproject.org/git/poky"
+    path: layers/poky
+    layers:
+      meta:
+      meta-poky:
+      meta-yocto-bsp:
+
+  meta-rauc:
+    url: "https://github.com/rauc/meta-rauc.git"
+    branch: master
+    path: layers/meta-rauc
+
   meta-rauc-community:
     url: "https://github.com/rauc/meta-rauc-community"
     branch: master
@@ -19,6 +38,10 @@ repos:
       meta-demo-only:
 
 local_conf_header:
+  distro: |
+    DISTRO_FEATURES:append = " rauc"
+    INIT_MANAGER = "systemd"
+
   versioning: |
     SOFTWARE_VERSION ??= "0.0"
     RELEASE_TYPE ??= "unreleased"
@@ -31,3 +54,7 @@ local_conf_header:
 
     # Deploy artifacts with a suffix that allows a deployment suitable for the demo
     IMAGE_NAME_SUFFIX = "-${RELEASE_TYPE}"
+
+    # Enable easy debugging
+    EXTRA_IMAGE_FEATURES += "allow-empty-password allow-root-login empty-root-password"
+    EXTRA_IMAGE_FEATURES += "ssh-server-openssh"

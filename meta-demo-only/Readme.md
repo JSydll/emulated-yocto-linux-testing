@@ -9,6 +9,8 @@ for the sake of simplicity.
 ## Providing multiple software versions
 
 For demonstrating the test of update permutations, we need some differing software versions to start from and to go to.
-While Yocto's `multiconfig` feature is rather meant for building sub-system artifacts and defining dependencies across them, it is used here to create three software variants (`latest`, `lts` and `manufacturing`) that only differ in the deployed `/etc/buildinfo` file.
+Therefore, three software variants (`latest`, `lts` and `manufacturing`) are artificially created that only differ in the 
+deployed `/etc/buildinfo` file. To identify the produced artifacts in the deployment, they are suffixed with the respective
+identifier.
 
 In production, those software versions would of course only evolve over time, and you'd probably rather use some sort of branching strategy to maintain the variants.

@@ -9,3 +9,4 @@ SRC_URI:append = " \
 SRC_URI:append:raspberrypi4 = " \
     file://memorysize.cfg \
 "
+

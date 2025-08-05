@@ -18,6 +18,13 @@ build-publish
 test-run-pytest
 ```
 
+Note that this builds the software with the default (`latest`) version number.
+To build a different version (`lts` or `manufacturing`), use `set-version <version>` to switch
+before execution.
+
+After each completed build, you need to run `build-publish` to have the resulting artifacts
+available for testing.
+
 If you want to build the `raspberrypi4-64` reference image, you need to
 `set-machine raspberrypi-64` before executing the `build-*` or `test-*` functions.
 
@@ -82,8 +89,8 @@ To be of value, the proposed solution aims to fulfill a set of requirements:
 ### Approach
 
 - Use reference integrations for both `virt-aarch64` and a real board (Raspberry Pi 4). These do differ especially in the boot chain, but run the same `core-image-minimal`.
-- Use of Yocto's `multiconfig` to mimic different software versions, resulting in one build producing three versions.
-  > Attention: This wouldn't be done in a productive environment - time will produde multiple versions there instead
+- Use of `image-buildinfo` to inject a software versions into the image so that it can be identified in the tests.
+  > Attention: This would probably be done differently in a productive environment - where time will produce multiple versions.
 - Publish build artifacts into a mount-volume of the test environment Docker container.
 - Mount the volume read-only to ensure artifacts are not modified.
 - Provide a `labgrid` environment config for emulated targets, one target per software version to have that "preinstalled".

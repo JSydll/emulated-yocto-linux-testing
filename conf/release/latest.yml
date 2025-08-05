@@ -1,0 +1,7 @@
+header:
+  version: 14
+
+local_conf_header:
+  release-latest: |
+    SOFTWARE_VERSION = "3.1"
+    RELEASE_TYPE = "latest"

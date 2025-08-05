@@ -1,4 +1,3 @@
-
 IMAGE_INSTALL:append:virt-aarch64 = " \
     alive-service \
 "

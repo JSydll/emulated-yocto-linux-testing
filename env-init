@@ -5,8 +5,9 @@ readonly SCRIPT_DIR
 readonly TEST_ARTIFACTS_DIR="${TEST_ARTIFACTS_DIR:-${SCRIPT_DIR}/work/artifacts}"
 readonly GENERATED_LG_CONFIG="/artifacts/latest.lg-env-config.yml"
 
-readonly KAS_CMD="KAS_WORK_DIR=${SCRIPT_DIR}/work ${SCRIPT_DIR}/tools/build/kas-container.4.5"
-readonly KAS_CONF_BASE="${SCRIPT_DIR}/conf/kas-"
+readonly KAS_CMD="${SCRIPT_DIR}/tools/build/kas-container.4.5"
+export KAS_WORK_DIR="${SCRIPT_DIR}/work"
+readonly KAS_CONF_BASE="${SCRIPT_DIR}/conf"
 
 readonly HW_MACHINE="raspberrypi4-64"
 readonly VIRT_MACHINE="virt-aarch64"
@@ -14,20 +15,12 @@ readonly VIRT_MACHINE="virt-aarch64"
 # Defaults
 # ----
 TARGET_MACHINE="${TARGET_MACHINE:-${VIRT_MACHINE}}"
-KAS_CONF="${KAS_CONF_BASE}${TARGET_MACHINE}.yml"
+SOFTWARE_VERSION="${SOFTWARE_VERSION:-latest}"
 
 readonly TEST_VERSIONS=(
     'manufacturing'
     'lts'
     'latest'
-)
-readonly TEST_BUILD_ARTIFACTS=(
-    'bootenv.img'
-    'u-boot.bin'
-    'core-image-minimal-virt-aarch64.rootfs.wic.qcow2'
-    "update-bundle-${HW_MACHINE}.raucb"
-    "update-bundle-${VIRT_MACHINE}.raucb"
-    'lg-env-config.yml'
 )
 TEST_DOCKER_IMAGE="emulated-linux-testing"
 # ----
@@ -42,35 +35,47 @@ function testenv_setup() {
 }
 
 function set_machine() {
-    TARGET_MACHINE="$1"
-    KAS_CONF="${KAS_CONF_BASE}${TARGET_MACHINE}.yml"
+    export TARGET_MACHINE="$1"
 }
 
-alias buildenv-setup="${KAS_CMD} checkout ${KAS_CONF}"
-alias testenv-rebuild="testenv_setup -f"
-alias set-machine="set_machine"
+function set_version() {
+    export SOFTWARE_VERSION="$1"
+}
+
+function get_build_conf() {
+    echo "${KAS_CONF_BASE}/${TARGET_MACHINE}.yml:${KAS_CONF_BASE}/release/${SOFTWARE_VERSION}.yml"
+}
+
+alias buildenv-setup='${KAS_CMD} checkout $(get_build_conf)'
+alias testenv-rebuild='testenv_setup -f'
+alias set-machine='set_machine'
+alias set-version='set_version'
 # ----
 
 # Build
 # ----
-alias build-shell="${KAS_CMD} shell ${KAS_CONF}"
-alias build-image="${KAS_CMD} build ${KAS_CONF}"
-alias build-runqemu="${KAS_CMD} shell ${KAS_CONF} -c 'runqemu mc:latest:core-image-minimal wic.qcow2 serial nographic slirp'"
+alias build-dump='${KAS_CMD} dump $(get_build_conf)'
+alias build-shell='${KAS_CMD} shell $(get_build_conf)'
+alias build-image='${KAS_CMD} build $(get_build_conf)'
+alias build-runqemu='${KAS_CMD} shell $(get_build_conf) -c "runqemu core-image-minimal-${SOFTWARE_VERSION} wic.qcow2 serial nographic slirp"'
 
 function publish_test_artifacts() {
-    rm -rf "${TEST_ARTIFACTS_DIR:?}"/*
     mkdir -p "${TEST_ARTIFACTS_DIR}"
+
     for machine in ${VIRT_MACHINE} ${HW_MACHINE}; do
+        local src_path="${SCRIPT_DIR}/work/build/tmp/deploy/images/${machine}"
         for version in "${TEST_VERSIONS[@]}"; do
-            for artifact in "${TEST_BUILD_ARTIFACTS[@]}"; do
-                path="${SCRIPT_DIR}/work/build/tmp-${version}/deploy/images/${machine}/${artifact}"
-                cp "${path}" "${TEST_ARTIFACTS_DIR}/${version}.${artifact}" &>/dev/null || true
-            done
+            local dest_base_path="${TEST_ARTIFACTS_DIR}/${version}."
+            cp "${src_path}/bootenv-${version}.img" "${dest_base_path}bootenv.img" &>/dev/null || true
+            cp "${src_path}/u-boot-${VIRT_MACHINE}-${version}.bin" "${dest_base_path}u-boot.bin" &>/dev/null || true
+            cp "${src_path}/core-image-minimal-${VIRT_MACHINE}-${version}.wic.qcow2" "${dest_base_path}system-image.wic.qcow2" &>/dev/null || true
+            cp "${src_path}/update-bundle-${machine}-${version}.raucb" "${dest_base_path}update-bundle-${machine}.raucb" &>/dev/null || true
+            cp "${src_path}/lg-env-config-${version}.yml" "${dest_base_path}lg-env-config.yml" &>/dev/null || true         
         done
     done
 }
 
-alias build-publish="publish_test_artifacts"
+alias build-publish='publish_test_artifacts'
 # ----
 
 # Test
@@ -100,14 +105,12 @@ function run_in_testenv() {
         ${TEST_DOCKER_IMAGE} "$@"
 }
 
-alias test-shell="run_in_testenv -i /bin/bash"
-alias test-run-pytest="run_in_testenv /usr/local/bin/pytest"
+alias test-shell='run_in_testenv -i /bin/bash'
+alias test-run-pytest='run_in_testenv /usr/local/bin/pytest'
 # ----
 
 # Pipeline helpers
 # ----
-readonly SKIP_HW_FLAG="no-hardware"
-
 function run_marked_tests() {
     local -r marker_expression="$1"
     shift
@@ -129,5 +132,5 @@ function run_marked_tests() {
     fi
 }
 
-alias run-pre-merge-tests="run_marked_tests 'smoketest'"
-alias run-nightly-tests="run_marked_tests 'smoketest or nightly'"
+alias run-pre-merge-tests='run_marked_tests "smoketest"'
+alias run-nightly-tests='run_marked_tests "smoketest or nightly"'

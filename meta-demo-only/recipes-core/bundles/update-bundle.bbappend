@@ -1,0 +1,1 @@
+BUNDLE_EXTENSION = "-${RELEASE_TYPE}.raucb"

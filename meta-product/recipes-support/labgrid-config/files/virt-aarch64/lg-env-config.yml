@@ -68,11 +68,11 @@ tools:
 
 images:
   uboot_latest: "@@LG_ARTIFACT_MOUNTPOINT@@/latest.u-boot.bin"
-  rootfs_latest: "@@LG_ARTIFACT_MOUNTPOINT@@/latest.@@ROOTFS_ARTIFACT@@"
+  rootfs_latest: "@@LG_ARTIFACT_MOUNTPOINT@@/latest.@@SYSTEM_IMAGE_ARTIFACT@@"
   uboot_lts: "@@LG_ARTIFACT_MOUNTPOINT@@/lts.u-boot.bin"
-  rootfs_lts: "@@LG_ARTIFACT_MOUNTPOINT@@/lts.@@ROOTFS_ARTIFACT@@"
+  rootfs_lts: "@@LG_ARTIFACT_MOUNTPOINT@@/lts.@@SYSTEM_IMAGE_ARTIFACT@@"
   uboot_manufacturing: "@@LG_ARTIFACT_MOUNTPOINT@@/manufacturing.u-boot.bin"
-  rootfs_manufacturing: "@@LG_ARTIFACT_MOUNTPOINT@@/manufacturing.@@ROOTFS_ARTIFACT@@"
+  rootfs_manufacturing: "@@LG_ARTIFACT_MOUNTPOINT@@/manufacturing.@@SYSTEM_IMAGE_ARTIFACT@@"
 
 imports:
   - environment.qemu.setup_strategy

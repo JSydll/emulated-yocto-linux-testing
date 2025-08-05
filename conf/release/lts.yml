@@ -1,0 +1,7 @@
+header:
+  version: 14
+
+local_conf_header:
+  release-lts: |
+    SOFTWARE_VERSION = "3.0"
+    RELEASE_TYPE = "lts"

@@ -1,0 +1,33 @@
+header:
+  version: 14
+
+target:
+  - core-image-minimal
+  - update-bundle
+
+repos:
+  meta-rauc-community:
+    url: "https://github.com/rauc/meta-rauc-community"
+    branch: master
+    path: layers/meta-rauc-community
+    layers:
+      meta-rauc-qemuarm:
+
+  emulated-yocto-linux-testing:
+    layers:
+      meta-product:
+      meta-demo-only:
+
+local_conf_header:
+  versioning: |
+    SOFTWARE_VERSION ??= "0.0"
+    RELEASE_TYPE ??= "unreleased"
+
+  demo-only: |
+    # As there are ongoing fixes for multiconfig setups and SPDX exporting,
+    # we disable this feature in the demo.
+    INHERIT:remove = "create-spdx"
+    IMAGE_CLASSES:remove = "create-spdx-image-3.0"
+
+    # Deploy artifacts with a suffix that allows a deployment suitable for the demo
+    IMAGE_NAME_SUFFIX = "-${RELEASE_TYPE}"

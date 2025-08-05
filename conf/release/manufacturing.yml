@@ -1,0 +1,7 @@
+header:
+  version: 14
+
+local_conf_header:
+  release-manufacturing: |
+    SOFTWARE_VERSION = "1.0"
+    RELEASE_TYPE = "manufacturing"

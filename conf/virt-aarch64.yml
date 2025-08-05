@@ -1,0 +1,8 @@
+header:
+  version: 14
+  includes:
+    - conf/includes/base.yml
+    - repo: meta-rauc-community
+      file: meta-rauc-qemuarm/kas-qemuarm.yml
+
+machine: virt-aarch64

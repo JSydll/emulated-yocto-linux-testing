@@ -1,0 +1,13 @@
+# TODO
+
+bootloader --ptable gpt
+
+# Separate kernel partitions to verify UKIs prior to loading rootfs with dm-verity
+part /boot --ondisk vda --uuid ${BOOT_A_PARTUUID} --source bootimg-partition --fstype=vfat --fixed-size 50M --align 4096
+part /boot --ondisk vda --uuid ${BOOT_B_PARTUUID} --source empty --fstype=vfat --fixed-size 50M --align 4096
+
+# Immutable rootfs partitions
+part / --ondisk vda --uuid ${ROOTFS_A_PARTUUID} --source rootfs --fstype=ext4 --fixed-size 250M --label ${ROOTFS_A_NAME} --align 4096
+part / --ondisk vda --uuid ${ROOTFS_B_PARTUUID} --source empty --fstype=ext4 --fixed-size 250M --label ${ROOTFS_B_NAME} --align 4096
+
+part /data --ondisk vda --fstype=ext4 --size 400M --label data

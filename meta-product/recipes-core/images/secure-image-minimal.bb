@@ -3,11 +3,14 @@ IMAGE_LINGUAS = " "
 
 LICENSE = "MIT"
 
-inherit core-image deploy
+inherit core-image deploy uki-with-profiles
+
+require conf/product.conf
 
 # Testing support
 DEPENDS:append = "labgrid-env-config"
 
+# Image contents
 IMAGE_INSTALL:append = " \
     packagegroup-core-boot \
     ${CORE_IMAGE_EXTRA_INSTALL} \
@@ -21,35 +24,28 @@ IMAGE_INSTALL:append:virt-aarch64 = " \
 "
 
 IMAGE_FSTYPES = "tar.bz2 wic.qcow2"
-WKS_FILE = "secure-system-image.wks"
+WKS_FILE = "secure-system-image.wks.in"
 
-# Note: startup.nsh will be deployed by bootimg-efi.bbclass
-IMAGE_EFI_BOOT_FILES:append = " \
-    EFI/BOOT/*;EFI/BOOT/ \
-    loader/loader.conf;loader/ \
-    loader/entries/*;loader/entries/ \
-"
+# UKI specification
+INITRAMFS_IMAGE = "core-image-minimal-initramfs"
+KERNEL_DEVICETREE = "qemuarm64.dtb"
+# No default commandline - profiles are used instead
+UKI_CMDLINE = ""
+#UKI_SB_KEY ?= ""
+#UKI_SB_CERT ?= ""
+
+# Definition of two profiles to be embedded in the UKI, allowing a common UKI to be used for both update slots
+UKI_PROFILES = "boot_a boot_b"
+UKI_PROFILE_boot_a[name] = "${BOOT_A_PROFILE}"
+UKI_PROFILE_boot_a[meta] = "TITLE=Profile for booting with rootFS A ID=${BOOT_A_PROFILE}"
+UKI_PROFILE_boot_a[cmdline] = "root=PARTUUID=${ROOTFS_A_PARTUUID} rootfstype=ext4 rauc.slot=${ROOTFS_A_NAME}"
+UKI_PROFILE_boot_b[name] = "${BOOT_B_PROFILE}"
+UKI_PROFILE_boot_b[meta] = "TITLE=Profile for booting with rootFS B ID=${BOOT_B_PROFILE}"
+UKI_PROFILE_boot_b[cmdline] = "root=PARTUUID=${ROOTFS_B_PARTUUID} rootfstype=ext4 rauc.slot=${ROOTFS_B_NAME}"
+
+IMAGE_BOOT_FILES = "${UKI_FILENAME}"
 
 # Dependencies for image creation and deployment of all relevant artifacts
 do_image_wic[depends] += " \
-    systemd-boot:do_deploy \
+    u-boot:do_deploy \
 "
-
-# TODO: Update this as soon as a real FIP is built
-do_deploy[mcdepends] = " \
-    mc::firmware:u-boot:do_deploy \
-    mc::uefi-shell:edk2-firmware:do_deploy \
-"
-
-FIRMWARE_BINARY_PATH = "${TMPDIR}-firmware/deploy/images/${MACHINE}/${FIRMWARE_BINARY}"
-FIRMWARE_BINARY_PATH[vardepsexclude] += "TMPDIR"
-
-UEFI_SHELL_EFI = "${TMPDIR}-uefi-shell/deploy/images/${MACHINE}/shell.efi"
-UEFI_SHELL_EFI[vardepsexclude] += "TMPDIR"
-
-do_deploy() {
-    install -m 0644 ${FIRMWARE_BINARY_PATH} ${DEPLOYDIR}/${FIRMWARE_BINARY}
-    install -m 0644 ${UEFI_SHELL_EFI} ${DEPLOYDIR}/shell.efi
-}
-addtask do_deploy before do_image_wic
-

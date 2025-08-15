@@ -12,7 +12,7 @@ SRC_URI:append:raspberrypi4 = " \
 
 # UEFI-based secure boot
 SRC_URI:append:virt-aarch64 = " \
-    file://uefiprovider.cfg \
+    file://uefi-secure-boot.cfg \
 "
 
 # Remove boot path via bootloader script

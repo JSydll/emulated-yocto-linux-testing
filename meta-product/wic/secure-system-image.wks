@@ -1,5 +1,0 @@
-# TODO
-
-bootloader --ptable gpt
-
-part --ondisk vda --source bootimg-efi --sourceparams="loader=systemd-boot,install-kernel-into-boot-dir=false" --fstype=vfat --active

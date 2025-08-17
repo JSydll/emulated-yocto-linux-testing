@@ -18,13 +18,14 @@ SRC_URI = " \
 S = "${WORKDIR}/sources"
 UNPACKDIR = "${S}"
 
-LG_CONFIG_FILE="lg-env-config-${MACHINE}-${PV}-${PR}.yml"
+LG_CONFIG_FILE = "lg-env-config-${MACHINE}-${PV}-${PR}.yml"
 # Our test setup expects artifacts to be published to a generic mount point
-LG_ARTIFACT_MOUNTPOINT="/artifacts"
+LG_ARTIFACT_MOUNTPOINT = "/artifacts"
 
 # Artifact nomenclature
-SYSTEM_IMAGE_ARTIFACT="system-image.wic.qcow2"
-UPDATE_BUNDLE_ARTIFACT="update-bundle-${MACHINE}.raucb"
+FIRMWARE_ARTIFACT = "flash.bin"
+SYSTEM_IMAGE_ARTIFACT = "system-image.wic.qcow2"
+UPDATE_BUNDLE_ARTIFACT = "update-bundle-${MACHINE}.raucb"
 
 do_deploy() {
     install -d ${DEPLOYDIR}
@@ -38,6 +39,7 @@ do_deploy() {
 
 do_deploy:append:virt-aarch64() {
     sed -e "s|@@LG_ARTIFACT_MOUNTPOINT@@|${LG_ARTIFACT_MOUNTPOINT}|" \
+        -e "s|@@FIRMWARE_ARTIFACT@@|${FIRMWARE_ARTIFACT}|" \
         -e "s|@@SYSTEM_IMAGE_ARTIFACT@@|${SYSTEM_IMAGE_ARTIFACT}|" \
         -e "s|@@UPDATE_BUNDLE_ARTIFACT@@|${UPDATE_BUNDLE_ARTIFACT}|" \
         -e "s|@@MACHINE@@|${MACHINE}|" \

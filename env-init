@@ -66,8 +66,7 @@ function publish_test_artifacts() {
         local src_path="${SCRIPT_DIR}/work/build/tmp/deploy/images/${machine}"
         for version in "${TEST_VERSIONS[@]}"; do
             local dest_base_path="${TEST_ARTIFACTS_DIR}/${version}."
-            cp "${src_path}/bootenv-${version}.img" "${dest_base_path}bootenv.img" &>/dev/null || true
-            cp "${src_path}/u-boot-${VIRT_MACHINE}-${version}.bin" "${dest_base_path}u-boot.bin" &>/dev/null || true
+            cp "${src_path}/flash-${VIRT_MACHINE}-${version}.bin" "${dest_base_path}flash.bin" &>/dev/null || true
             cp "${src_path}/core-image-minimal-${VIRT_MACHINE}-${version}.wic.qcow2" "${dest_base_path}system-image.wic.qcow2" &>/dev/null || true
             cp "${src_path}/update-bundle-${machine}-${version}.raucb" "${dest_base_path}update-bundle-${machine}.raucb" &>/dev/null || true
             cp "${src_path}/lg-env-config-${version}.yml" "${dest_base_path}lg-env-config.yml" &>/dev/null || true         

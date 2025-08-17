@@ -5,6 +5,10 @@ header:
 
 machine: virt-aarch64
 
+target:
+  - secure-image-minimal
+  - update-bundle
+
 repos:
   meta-arm:
     url: "https://github.com/jonmason/meta-arm"
@@ -16,5 +20,4 @@ repos:
 
 local_conf_header:
   secure-boot: |
-    # TODO: Update this as soon as actual FIP is available.
-    FIRMWARE_BINARY = "u-boot-${MACHINE}-${RELEASE_TYPE}.bin"
+    FIRMWARE_BINARY = "flash-${MACHINE}-${RELEASE_TYPE}.bin"

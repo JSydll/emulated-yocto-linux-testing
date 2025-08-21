@@ -10,6 +10,21 @@ target:
   - update-bundle
 
 repos:
+  meta-openembedded:
+    url: https://github.com/openembedded/meta-openembedded
+    path: layers/meta-openembedded
+    layers:
+      meta-oe:
+      meta-perl:
+    
+  meta-secure-core:
+    url: https://github.com/Wind-River/meta-secure-core.git
+    path: layers/meta-secure-core
+    layers:
+      meta-secure-core-common:
+      meta-signing-key:
+      meta-efi-secure-boot:
+
   meta-arm:
     url: "https://github.com/jonmason/meta-arm"
     branch: master
@@ -21,3 +36,8 @@ repos:
 local_conf_header:
   secure-boot: |
     FIRMWARE_BINARY = "flash-${MACHINE}-${RELEASE_TYPE}.bin"
+    EFI_SYSTEM_PARTITION_IMAGE = "efi-system-partition-image-${MACHINE}-${RELEASE_TYPE}.wic.qcow2"
+
+    # For now, keys are created in the build directory - a productive setup would require
+    # proper key provisioning and infrastructure.
+    SBSIGN_KEYS_DIR = "${TOPDIR}/sbsign"

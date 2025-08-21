@@ -1,0 +1,5 @@
+# TODO
+
+bootloader --ptable gpt
+
+part --ondisk vda --source empty --fstype=vfat --label ESP --part-type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B --fixed-size 64M --align 1024

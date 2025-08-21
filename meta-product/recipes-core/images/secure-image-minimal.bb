@@ -3,7 +3,7 @@ IMAGE_LINGUAS = " "
 
 LICENSE = "MIT"
 
-inherit core-image deploy uki-with-profiles
+inherit core-image uki-with-profiles
 
 require conf/product.conf
 
@@ -48,4 +48,10 @@ IMAGE_BOOT_FILES = "${UKI_FILENAME}"
 # Dependencies for image creation and deployment of all relevant artifacts
 do_image_wic[depends] += " \
     u-boot:do_deploy \
+"
+
+# While not directly depending on it, running the emulation requires the ESP
+do_image_complete[depends] += " \
+    trusted-firmware-a:do_deploy \
+    efi-system-partition-image:do_image_complete \
 "

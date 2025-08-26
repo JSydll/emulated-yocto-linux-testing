@@ -7,6 +7,7 @@
 	#size-cells = <0x02>;
 	#address-cells = <0x02>;
 	compatible = "linux,dummy-virt";
+	virt-aarch64,dt-version = "0.1";
 
 	memory@40000000 {
 		reg = <0x00 0x40000000 0x01 0x00>;

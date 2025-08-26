@@ -1,4 +1,4 @@
-# In this demo, do not display the warning that poky is not a productive distribution.
-do_install:append() {
-    rm ${D}${sysconfdir}/motd
+# Let wic create the fstab according to secure-image-minimal.wks
+do_install:append:virt-aarch64() {
+   rm ${D}/${sysconfdir}/fstab
 }

@@ -7,7 +7,7 @@ machine: virt-aarch64
 
 target:
   - secure-image-minimal
-  - update-bundle
+  - secure-update-bundle
 
 repos:
   meta-openembedded:

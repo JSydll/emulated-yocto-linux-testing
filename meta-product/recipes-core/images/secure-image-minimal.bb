@@ -3,7 +3,7 @@ IMAGE_LINGUAS = " "
 
 LICENSE = "MIT"
 
-inherit core-image uki-with-profiles
+inherit core-image uki-with-profiles sbsign
 
 require conf/product.conf
 
@@ -39,8 +39,8 @@ KERNEL_DEVICETREE = "devicetree/qemuarm64.dtb"
 do_uki[depends] += " devicetree-qemuarm:do_deploy "
 # No default commandline - profiles are used instead
 UKI_CMDLINE = ""
-#UKI_SB_KEY = "${SBSIGN_KEY}"
-#UKI_SB_CERT = "${SBSIGN_CERT}"
+UKI_SB_KEY = "${SBSIGN_KEY}"
+UKI_SB_CERT = "${SBSIGN_CERT}"
 
 # Definition of two profiles to be embedded in the UKI, allowing a common UKI to be used for both update slots
 UKI_PROFILES = "boot_a boot_b"

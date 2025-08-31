@@ -1,0 +1,13 @@
+[Unit]
+Description=Sync U-Boot EFI variables before shutdown
+DefaultDependencies=no
+After=rauc.service
+Before=shutdown.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=no
+ExecStart=/usr/bin/run-efivars-sync
+
+[Install]
+WantedBy=shutdown.target

@@ -22,9 +22,11 @@ IMAGE_INSTALL:append:raspberrypi4-64 = " \
     devicetree-qemuarm \
 "
 
+# The u-boot-efivars-sync is a development-only workaround!
 IMAGE_INSTALL:append:virt-aarch64 = " \
     efivar \
     efibootmgr \
+    u-boot-efivars-sync \
     alive-service \
 "
 

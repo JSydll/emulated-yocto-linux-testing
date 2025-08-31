@@ -1,4 +1,4 @@
-FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/u-boot:"
 
 SRC_URI:append = " \
     file://bootflow.cfg \

@@ -16,6 +16,10 @@ repos:
     layers:
       meta-oe:
       meta-perl:
+
+  meta-security:
+    url: https://git.yoctoproject.org/meta-security
+    path: layers/meta-security
     
   meta-secure-core:
     url: https://github.com/Wind-River/meta-secure-core.git
@@ -41,3 +45,8 @@ local_conf_header:
     # For now, keys are created in the build directory - a productive setup would require
     # proper key provisioning and infrastructure.
     SBSIGN_KEYS_DIR = "${TOPDIR}/sbsign"
+
+    DISTRO_FEATURES:append = " security "
+    IMAGE_CLASSES += "dm-verity-img"
+    DM_VERITY_IMAGE = "secure-image-minimal"
+    DM_VERITY_IMAGE_TYPE = "squashfs"

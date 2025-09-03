@@ -4,11 +4,11 @@
 bootloader --ptable gpt
 
 # Separate kernel partitions to verify UKIs prior to loading rootfs with dm-verity
-part --ondisk vdb --uuid ${BOOT_A_PARTUUID} --source bootimg-partition --fstype=squashfs --fixed-size 50M --align 4096
-part --ondisk vdb --uuid ${BOOT_B_PARTUUID} --source empty --fstype=squashfs --fixed-size 50M --align 4096
+part --ondisk vdb --uuid d7804755-193a-47ef-8fa6-966d45aab7a2 --source bootimg-partition --fstype=squashfs --fixed-size 50M --align 4096
+part --ondisk vdb --uuid 52c9b548-2548-4b57-b8df-8193e50e9b45 --source empty --fstype=squashfs --fixed-size 50M --align 4096
 
 # Rootfs partitions
-part / --ondisk vdb --uuid ${ROOTFS_A_PARTUUID} --source rootfs --fstype=ext4 --fixed-size 250M --label ${ROOTFS_A_NAME} --align 4096
-part / --ondisk vdb --uuid ${ROOTFS_B_PARTUUID} --source empty --fstype=ext4 --fixed-size 250M --label ${ROOTFS_B_NAME} --align 4096
+part / --ondisk vdb --uuid 020977a6-f364-4499-a61c-bc4708908265 --source rawcopy --sourceparams="file=${IMGDEPLOYDIR}/${DM_VERITY_IMAGE}-${MACHINE}${IMAGE_NAME_SUFFIX}.${DM_VERITY_IMAGE_TYPE}.verity" --fixed-size 250M --align 4096
+part / --ondisk vdb --uuid 99979fdc-3a79-452d-a62a-cf09030f241b --source empty --fstype=squashfs --fixed-size 250M --align 4096
 
 part /data --ondisk vdb --fstype=ext4 --size 400M --label data

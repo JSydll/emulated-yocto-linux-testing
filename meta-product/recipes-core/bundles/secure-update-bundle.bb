@@ -16,4 +16,4 @@ RAUC_SLOT_uki[fstype] = "uki.squashfs"
 
 RAUC_SLOT_rootfs = "${BASE_IMAGE}"
 RAUC_SLOT_rootfs[type] = "image"
-RAUC_SLOT_rootfs[fstype] = "rootfs.ext4"
+RAUC_SLOT_rootfs[fstype] = "rootfs.squashfs.verity"

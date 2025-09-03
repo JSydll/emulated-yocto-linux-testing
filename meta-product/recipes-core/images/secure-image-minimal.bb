@@ -5,10 +5,18 @@ LICENSE = "MIT"
 
 inherit core-image uki-with-profiles sbsign
 
-require conf/product.conf
-
 # Testing support
 DEPENDS:append = "labgrid-env-config"
+
+# Image features
+OVERLAYFS_ETC_MOUNT_POINT = "/data"
+OVERLAYFS_ETC_FSTYPE = "ext4"
+OVERLAYFS_ETC_DEVICE:virt-aarch64 = "/dev/vdb5"
+
+IMAGE_FEATURES:append:virt-aarch64 = " \
+    read-only-rootfs \
+    overlayfs-etc \
+"
 
 # Image contents
 IMAGE_INSTALL:append = " \
@@ -30,11 +38,13 @@ IMAGE_INSTALL:append:virt-aarch64 = " \
     alive-service \
 "
 
-IMAGE_FSTYPES = "wic.qcow2"
+IMAGE_FSTYPES = "squashfs wic.qcow2"
 WKS_FILE = "secure-system-image.wks.in"
 
+# dm-verity setup
+INITRAMFS_IMAGE = "dm-verity-image-initramfs"
+
 # UKI specification
-INITRAMFS_IMAGE = "core-image-minimal-initramfs"
 KERNEL_DEVICETREE = "devicetree/qemuarm64.dtb"
 do_uki[depends] += " devicetree-qemuarm:do_deploy "
 # No default commandline - profiles are used instead
@@ -43,13 +53,14 @@ UKI_SB_KEY = "${SBSIGN_KEY}"
 UKI_SB_CERT = "${SBSIGN_CERT}"
 
 # Definition of two profiles to be embedded in the UKI, allowing a common UKI to be used for both update slots
+CMDLINE_BASE = "rootfstype=squashfs verity=1"
 UKI_PROFILES = "boot_a boot_b"
-UKI_PROFILE_boot_a[name] = "${BOOT_A_PROFILE}"
-UKI_PROFILE_boot_a[meta] = "TITLE=Profile for booting with rootFS A ID=${BOOT_A_PROFILE}"
-UKI_PROFILE_boot_a[cmdline] = "root=PARTUUID=${ROOTFS_A_PARTUUID} rootfstype=ext4 rauc.slot=${ROOTFS_A_NAME}"
-UKI_PROFILE_boot_b[name] = "${BOOT_B_PROFILE}"
-UKI_PROFILE_boot_b[meta] = "TITLE=Profile for booting with rootFS B ID=${BOOT_B_PROFILE}"
-UKI_PROFILE_boot_b[cmdline] = "root=PARTUUID=${ROOTFS_B_PARTUUID} rootfstype=ext4 rauc.slot=${ROOTFS_B_NAME}"
+UKI_PROFILE_boot_a[name] = "boot-profile-a"
+UKI_PROFILE_boot_a[meta] = "TITLE=Profile for booting with rootFS A ID=boot-profile-a"
+UKI_PROFILE_boot_a[cmdline] = "${CMDLINE_BASE} root=PARTUUID=020977a6-f364-4499-a61c-bc4708908265 rauc.slot=system0"
+UKI_PROFILE_boot_b[name] = "boot-profile-b"
+UKI_PROFILE_boot_b[meta] = "TITLE=Profile for booting with rootFS B ID=boot-profile-b"
+UKI_PROFILE_boot_b[cmdline] = "${CMDLINE_BASE} root=PARTUUID=99979fdc-3a79-452d-a62a-cf09030f241b rauc.slot=system1"
 
 IMAGE_BOOT_FILES = "${UKI_FILENAME}"
 
@@ -57,7 +68,7 @@ IMAGE_BOOT_FILES = "${UKI_FILENAME}"
 do_copy_wic_partitions() {
     wic_workdir="${WORKDIR}/build-wic"
     cp -v "${wic_workdir}"/*.direct.p1 "${IMGDEPLOYDIR}"/${IMAGE_BASENAME}${IMAGE_MACHINE_SUFFIX}${IMAGE_NAME_SUFFIX}.uki.squashfs
-    cp -v "${wic_workdir}"/*.direct.p3 "${IMGDEPLOYDIR}"/${IMAGE_BASENAME}${IMAGE_MACHINE_SUFFIX}${IMAGE_NAME_SUFFIX}.rootfs.ext4
+    cp -v "${wic_workdir}"/*.direct.p3 "${IMGDEPLOYDIR}"/${IMAGE_BASENAME}${IMAGE_MACHINE_SUFFIX}${IMAGE_NAME_SUFFIX}.rootfs.squashfs.verity
 }
 addtask copy_wic_partitions after do_image_wic before do_image_complete
 

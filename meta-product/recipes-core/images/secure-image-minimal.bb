@@ -18,8 +18,8 @@ IMAGE_FEATURES:append:virt-aarch64 = " \
     overlayfs-etc \
 "
 
-# Image contents
-IMAGE_INSTALL:append = " \
+# Image contents (do not pull in the packagegroup-base-extended as done by core-image.bbclass)
+IMAGE_INSTALL = " \
     packagegroup-core-boot \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     rauc \
@@ -81,4 +81,9 @@ do_image_wic[depends] += " \
 do_image_complete[depends] += " \
     trusted-firmware-a:do_deploy \
     efi-system-partition-image:do_image_complete \
+"
+
+do_clean[depends] += " \
+    trusted-firmware-a:do_clean \
+    efi-system-partition-image:do_clean \    
 "
